@@ -393,7 +393,7 @@ myApp.config(['$httpProvider', function($httpProvider) {
 }]);
 
 myApp.config(['RestangularProvider', function (RestangularProvider) {
-    RestangularProvider.setDefaultHeaders({'X-API-Key': 'a119bbcfd2974bf6971ca1761aeb34a5'});
+    RestangularProvider.setDefaultHeaders({'X-API-Key': 'YOUR_API_KEY'});
     
     RestangularProvider.addFullRequestInterceptor(function(element, operation, what, url, headers, params, httpConfig) {
         
