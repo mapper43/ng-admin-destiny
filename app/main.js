@@ -6,9 +6,17 @@ var currentMemberId;
 var currentCharacterId;
 
 var urlShowArg;
+myApp.config( [
+    '$compileProvider',
+    function( $compileProvider )
+    {   
+        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|chrome-extension):/);
+        // Angular before v1.2 uses $compileProvider.urlSanitizationWhitelist(...)
+    }
+])
 
 // declare a function to run when the module bootstraps (during the 'config' phase)
-myApp.config(['NgAdminConfigurationProvider', function (nga) {
+.config(['NgAdminConfigurationProvider', function (nga) {
     // create an admin application
     var admin = nga.application('ng-admin-destiny').baseApiUrl('https://www.bungie.net/Platform/Destiny/');
     
@@ -252,7 +260,8 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     // character items
     //****************************
     
-    var characterItem = nga.entity('inventory').identifier(nga.field('itemHash'))
+    var characterItem = nga.entity('inventory')
+    .identifier(nga.field('itemHash'))
     .url(function(entityName, viewType, identifierValue, identifierName) {
         if (identifierValue)
             return 'platformid/Account/memberid/Character/characterid/Inventory/'+ identifierValue;
@@ -260,19 +269,19 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
             return 'platformid/Account/memberid/Character/characterid/Inventory/';
     });
     characterItem.readOnly();
-    admin.addEntity(characterItem);
     
     characterItem.listView()
     .title('Inventory')
     .fields([
-        nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values[\'itemDef.icon\'] }}" height="42" width="42" />'),
+        nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values[\'definition.icon\'] }}" height="42" width="42" />'),
+        //nga.field('itemHash').label('itemHash'),
         nga.field('primaryStat.value').label(''),
-        nga.field('itemDef.itemName').label('Name'),
-        nga.field('itemDef.tierTypeName').label('Tier'),
-        nga.field('itemDef.itemTypeName').label('Type'),
+        nga.field('definition.itemName').label('Name'),
+        nga.field('definition.tierTypeName').label('Tier'),
+        nga.field('definition.itemTypeName').label('Type'),
         nga.field('', 'template').label('').template('<span class="pull-right"><a class="btn btn-default btn-xs" href="#/inventory/show/{{entry.values.currentPlatformId}}-{{entry.values.currentMemberId}}-{{entry.values.currentCharacterId}}-{{entry.values.itemInstanceId}}"><span class="glyphicon glyphicon-eye-open"></span>&nbsp;Details</a>'),
         ])
-    .actions(['back','export'])
+    //.actions(['back','export'])
     .batchActions([]);
     
     characterItem.showView()
@@ -290,7 +299,10 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
                     nga.field('perkDef.displayDescription').label('Description'),
                 ])
         ]);    
-        
+    
+    admin.addEntity(characterItem);
+    
+    
     admin.menu(nga.menu()
       .addChild(nga.menu().title('Current Activities')
             .addChild(nga.menu().title('Nightfall').link("/advisors/show/nightfall"))
@@ -365,7 +377,7 @@ myApp.config(['$httpProvider', function($httpProvider) {
                                     .replace('platformid',arr[0])
                                     .replace('memberid',arr[1])
                                     .replace('characterid',arr[2])
-                                    .replace(argstring,arr[3]) + '/?definitions=true';
+                                    .replace(argstring,arr[3]) + '/';
                     
                     
                     
@@ -381,7 +393,7 @@ myApp.config(['$httpProvider', function($httpProvider) {
 }]);
 
 myApp.config(['RestangularProvider', function (RestangularProvider) {
-    RestangularProvider.setDefaultHeaders({'X-API-Key': 'YOUR-API-KEY'});
+    RestangularProvider.setDefaultHeaders({'X-API-Key': 'a119bbcfd2974bf6971ca1761aeb34a5'});
     
     RestangularProvider.addFullRequestInterceptor(function(element, operation, what, url, headers, params, httpConfig) {
         
@@ -440,8 +452,11 @@ myApp.config(['RestangularProvider', function (RestangularProvider) {
             
             if (what=="items"){
                 var arr = Object.keys(data.Response.definitions.items).map(function (key) {return data.Response.definitions.items[key]});
+                console.log(arr);
+                
                 data = arr;
             }
+            
         }
         if (operation == "getList" && what == "activities") {
             var arr = Object.keys(data.Response.definitions.activities).map(function (key) {return data.Response.definitions.activities[key]});
@@ -531,8 +546,26 @@ myApp.config(['RestangularProvider', function (RestangularProvider) {
             data = item;
         }
         if (operation == "getList" && what == "inventory") {
-            
-            if (data){
+            if (data) {
+                var equippables = data.Response.data.buckets.Equippable;
+                var arr = [];
+                
+                for (var i=0; i<equippables.length; i++){
+                    var item = equippables[i].items[0];
+                    if (item && item.itemHash) {
+                        item.definition = data.Response.definitions.items[item.itemHash];
+                        item.currentCharacterId=currentCharacterId;
+                        item.currentPlatformId=currentPlatformId;
+                        item.currentMemberId=currentMemberId;
+                        arr.push(item);
+                    }
+                }
+                
+                console.log(arr);
+                data=arr;
+               
+            }
+            if (data && false){
                 var allitems = [];
                 
                 var buckets = Object.keys(data.Response.data.buckets.Equippable).map(function (key) {return data.Response.data.buckets.Equippable[key]});
@@ -548,12 +581,12 @@ myApp.config(['RestangularProvider', function (RestangularProvider) {
                         items[j].currentPlatformId=currentPlatformId;
                         items[j].currentMemberId=currentMemberId;
                         
-                        allitems.push(items[j]);
+                        if (allitems.indexOf(items[j])==-1) allitems.push(items[j]);
                     }
                 }
                 data = allitems;
             } else {
-                data = [];
+                //data = [];
             }
         }
         if (operation == "getList" && what == "characters") {
