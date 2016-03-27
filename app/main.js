@@ -21,6 +21,46 @@ myApp.config( [
     var admin = nga.application('ng-admin-destiny').baseApiUrl('https://www.bungie.net/Platform/Destiny/');
     
     // **********************
+    //  Xur
+    // **********************
+    
+    var vendorXur = nga.entity('xur').identifier(nga.field('vendorHash')).url(function(entityName, entityId, viewType, identifierValue, identifierName) {
+      return 'Advisors/Xur/';
+    });
+    
+    vendorXur.readOnly();
+    admin.addEntity(vendorXur);
+    
+    vendorXur.showView()
+        .title('Xur')
+        .actions(['back'])
+        .fields([
+            nga.field('nextRefreshDate').label('Next Refresh'),
+            nga.field('enabled'),
+            nga.field('saleItemCategories', 'embedded_list').label('')
+                .targetFields([
+                    nga.field('categoryTitle'),
+                    nga.field('saleItems', 'embedded_list').label('')
+                        .targetFields([
+                            nga.field('item.definition.icon').label('').template('<img style="height:42px;width:42px;" src="https://www.bungie.net{{ entry.values[\'item.definition.icon\'] }}" />'), 
+                            nga.field('item.primaryStat.value').label(''),
+                            nga.field('item.definition.itemName').label('Name'),
+                            
+                            nga.field('item.perks', 'embedded_list').label('Perks')
+                                .targetFields([
+                                    nga.field('iconPath').label('').template('<img style="background-color:darkgray;height:42px;width:42px;" src="https://www.bungie.net{{ value }}" />'), 
+                                    nga.field('definition.displayName').label('Name'),
+                                    nga.field('definition.displayDescription').label('Description'),
+                                    //nga.field('').label('all').template('<div> {{ entry.values }}</div>'),
+                                    
+                                    ]),
+                            //nga.field('item.definition.icon'),
+                        ]),
+            ])
+        ]);
+    
+    
+    // **********************
     //  mainfest activities
     // **********************
     
@@ -314,6 +354,8 @@ myApp.config( [
             .addChild(nga.menu().title('Weekly Crucible').link("/advisors/show/weeklyCrucible"))
             .addChild(nga.menu().title('Available Bounties').link("/availablebounties/show/")))
       .addChild(nga.menu(admin.getEntity('guardians')).title('Guardian Search'))
+      .addChild(nga.menu().title('Vendors')
+            .addChild(nga.menu().title('Xur').link("/xur/show/")))
       .addChild(nga.menu().title('All Items by Category')
             .addChild(nga.menu().title('Primary Weapons').link("/items/list?search=%7B%22categories%22:%221%22%7D"))
             .addChild(nga.menu().title('Currency').link("/items/list?search=%7B%22categories%22:%2218%22%7D"))
@@ -393,7 +435,7 @@ myApp.config(['$httpProvider', function($httpProvider) {
 }]);
 
 myApp.config(['RestangularProvider', function (RestangularProvider) {
-    RestangularProvider.setDefaultHeaders({'X-API-Key': 'YOUR_API_KEY'});
+    RestangularProvider.setDefaultHeaders({'X-API-Key': 'a119bbcfd2974bf6971ca1761aeb34a5'});
     
     RestangularProvider.addFullRequestInterceptor(function(element, operation, what, url, headers, params, httpConfig) {
         
@@ -469,6 +511,27 @@ myApp.config(['RestangularProvider', function (RestangularProvider) {
                 data = [];
             }
             
+        }
+        if (operation == "get" && what=="xur") {
+            if (data && data.Response && data.Response.data){
+                var categories = data.Response.data.saleItemCategories;
+                for (var i=0; i<categories.length; i++){
+                    var items = categories[i].saleItems;
+                    for (var j=0; j<items.length; j++){
+                        items[j].item.definition = data.Response.definitions.items[items[j].item.itemHash];
+                        if (items[j].item && items[j].item.perks){
+                            var perks = items[j].item.perks;
+                            for (var k=0; k<perks.length; k++){
+                                console.log(perks[k]);
+                                perks[k].definition = data.Response.definitions.perks[perks[k].perkHash];
+                            }
+                        }
+                    }
+                }
+                data = data.Response.data;
+            } else {
+                data = [];
+            }   
         }
         if (operation == "get" && what.indexOf("manifest-")>-1) {
             if (data && data.Response && data.Response.data){
