@@ -178,6 +178,28 @@ myApp.config( [
          ]);
     admin.addEntity(availableBounty);
     
+    //*********************************
+    //  Advisor (Arena)
+    //*********************************
+    var arena = nga.entity('arena').identifier(nga.field('activityHash')).url(function(entityName, viewType, identifierValue, identifierName) {
+        return 'advisors/';
+    });
+    arena.readOnly();
+    arena.listView()
+        .title('Arena')
+        .fields([
+            nga.field('iconPath').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="42" width="42" />'),
+            //nga.field('activityHash').label('hash'),
+            nga.field('bossFight').label('Boss Fight'),
+            nga.field('isCompleted').label('Completed'),
+            nga.field('definition.activityName').label('Name'),
+            nga.field('definition.activityDescription').label('Description'),
+            nga.field('definition.minParty').label('Min Party'),
+            nga.field('definition.maxParty').label('Max Party'),
+        
+         ])
+        .batchActions([]);
+    admin.addEntity(arena);
     
     //************************
     //  Advisor (Armsday)
@@ -262,6 +284,7 @@ myApp.config( [
             nga.field('displayName').label('Display Name'),
             //nga.field('', 'template').label('').template('<span class="pull-right"><a href="#/characters/list">Show</a>'),
             nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="characters" filter="{ platformid: entry.values.membershipType, memberid:entry.values.membershipId }" size="sm"></ma-filtered-list-button>'),
+            nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="triumphs" filter="{ platformid: entry.values.membershipType, memberid:entry.values.membershipId }" size="sm"></ma-filtered-list-button>'),
         ])
     .filters([
       nga.field('displayname').label('').attributes({'placeholder': 'Display name'}).pinned(true),
@@ -270,6 +293,33 @@ myApp.config( [
     .batchActions([]);
     
     admin.addEntity(guardian);
+    
+    // **********************
+    //  guardians triumphs
+    // **********************
+    
+    var triumph = nga.entity('triumphs')
+    .identifier(nga.field('triumphSetHash'))
+    .url(function(entityName, viewType, identifierValue, identifierName) {
+            return 'platformid/Account/memberid/Triumphs/';
+    });
+    triumph.readOnly();
+    
+    triumph.listView()
+        .title('Triumphs')
+        .fields([
+            nga.field('definition.title').label('Title'),
+            nga.field('definition.incompleteDetails').label('Details').template('<div style="width:200px;"> {{ value }}" <div/>'),
+            nga.field('triumphs', 'embedded_list').label('Triumphs')
+                .targetFields([
+                    nga.field('definition.iconPath').label('').template('<img style="width:21px;height:21px;background-color:darkgray;" src="https://www.bungie.net{{ value }}" />'),   
+                    nga.field('definition.title').label('Title'),
+                    nga.field('definition.hasProgress').label('Progress'),
+                    nga.field('complete').label('Complete'),
+                ])
+        ])
+        .batchActions([]);
+    admin.addEntity(triumph);
     
     
     //***********************
@@ -289,13 +339,43 @@ myApp.config( [
         //nga.field('characterBase.characterId').label('id'),
         nga.field('characterBase.minutesPlayedTotal').label('Minutes Played'),
         nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="inventory" filter="{platformid: entry.values[\'characterBase.membershipType\'],memberid:entry.values[\'characterBase.membershipId\'],characterid: entry.values[\'characterBase.characterId\']}" size="sm"></ma-filtered-list-button>'),
+        nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="progression" filter="{platformid: entry.values[\'characterBase.membershipType\'],memberid:entry.values[\'characterBase.membershipId\'],characterid: entry.values[\'characterBase.characterId\']}" size="sm"></ma-filtered-list-button>'),
         ])
     .actions(['back','export'])
     .batchActions([]);
     
     admin.addEntity(character);
     
-
+    //*****************************
+    // character progression
+    //****************************
+    
+    var progression = nga.entity('progression')
+        .identifier(nga.field('progressionHash'))
+        .url(function(entityName, viewType, identifierValue, identifierName) {
+            if (identifierValue)
+                return 'platformid/Account/memberid/Character/characterid/Progression/'+ identifierValue;
+            else
+                return 'platformid/Account/memberid/Character/characterid/Progression/';
+        });
+    
+    progression.listView()
+    .title('Progression')
+    .fields([
+        nga.field('definition.icon').label('').template('<img src="http://www.bungie.net{{ value }}" style="background-color:darkgray;" height="42" width="42" />'),
+        nga.field('definition.name').label('Name'),
+        //nga.field('dailyProgress').label('Daily'),
+        //nga.field('weeklyProgress').label('Weekly'),
+        nga.field('currentProgress').label('Progress'),
+        nga.field('level').label('Level'),
+        //nga.field('').label('all').template('<div> {{ entry.values }}</div>'),
+     ])
+    .perPage(100)
+    .batchActions([]);
+    
+    admin.addEntity(progression);
+       
+    
     //*****************************
     // character items
     //****************************
@@ -347,7 +427,7 @@ myApp.config( [
       .addChild(nga.menu().title('Current Activities')
             .addChild(nga.menu().title('Nightfall').link("/advisors/show/nightfall"))
             .addChild(nga.menu().title('Heroic Strike').link("/advisors/show/heroicStrike"))
-            .addChild(nga.menu().title('Arena').link("/advisors/show/nightfall"))
+            .addChild(nga.menu().title('Arena').link("/arena/list"))
             .addChild(nga.menu().title('Daily Chapter').link("/advisors/show/dailyChapter"))
             .addChild(nga.menu().title('Daily Crucible').link("/advisors/show/dailyCrucible"))
             .addChild(nga.menu().title('Arms Day').link("/armsday/show/"))
@@ -481,7 +561,17 @@ myApp.config(['RestangularProvider', function (RestangularProvider) {
                 delete params.definitions;
                 delete params.page;
             }
+            if (what=='triumphs'){
+                //delete params.count;
+                delete params.page;
+            }
+            if (what=='progression'){
+                delete params.count;
+                delete params.page;
+            }
         }
+        console.log(params);
+        
         return { params: params };
     });
     
@@ -522,7 +612,7 @@ myApp.config(['RestangularProvider', function (RestangularProvider) {
                         if (items[j].item && items[j].item.perks){
                             var perks = items[j].item.perks;
                             for (var k=0; k<perks.length; k++){
-                                console.log(perks[k]);
+                                //console.log(perks[k]);
                                 perks[k].definition = data.Response.definitions.perks[perks[k].perkHash];
                             }
                         }
@@ -548,6 +638,14 @@ myApp.config(['RestangularProvider', function (RestangularProvider) {
         if (operation == "getList" && what == "advisorItems") {
             var arr = Object.keys(data.Response.definitions.items).map(function (key) {return data.Response.definitions.items[key]});
             data = arr;
+        }
+        if (operation == "getList" && what=="arena") {
+            var arr = Object.keys(data.Response.data.arena).map(function (key) {return data.Response.data.arena[key]});
+            
+            for (var i=0; i<arr.length; i++){
+                arr[i].definition = data.Response.definitions.activities[arr[i].activityHash];
+            }
+            data=arr;   
         }
         if (operation == "get" && what=="availablebounties") {
             var arr = Object.keys(data.Response.data.availableBounties).map(function (key) {return data.Response.data.availableBounties[key]});
@@ -592,6 +690,28 @@ myApp.config(['RestangularProvider', function (RestangularProvider) {
             
             data = data.Response.data[actId];
         }
+        if (operation == "getList" && what == "triumphs") {
+            if (data){
+                var triumphSets = data.Response.data.triumphSets;
+                
+                for (var i=0; i< triumphSets.length; i++){
+                    var triumphs = triumphSets[i].triumphs;
+                    var triumphSetHash = triumphSets[i].triumphSetHash;
+                    data.Response.data.triumphSets[i].definition = data.Response.definitions.triumphs[triumphSetHash];
+                    
+                    for (var j=0; j<triumphs.length; j++){
+                        
+                        data.Response.data.triumphSets[i].triumphs[j].definition = 
+                            data.Response.definitions.triumphs[triumphSetHash].triumphs[j];
+                        
+                    }
+                }
+                
+                data = data.Response.data.triumphSets;
+            } else {
+                data = [];
+            }
+        }
         if (operation == "getList" && what == "guardians") {
             if (data){
                 data.Response.displayName = params.displayname;
@@ -608,6 +728,24 @@ myApp.config(['RestangularProvider', function (RestangularProvider) {
             }
             data = item;
         }
+        
+        if (operation == "getList" && what == "progression") {
+            if (data) {
+                var progressions = data.Response.data.progressions;
+                
+                for (var i=0; i<progressions.length; i++){
+                    data.Response.data.progressions[i].definition = data.Response.definitions.progressions[progressions[i].progressionHash];
+                    var name =  data.Response.data.progressions[i].definition.name.replace(/_/g,' ');
+                    var upperName = name[0].toUpperCase() + name.slice(1);
+                    data.Response.data.progressions[i].definition.name=upperName;
+                }
+                
+                data = data.Response.data.progressions;
+            } else {
+                data = [];
+            }
+        }
+            
         if (operation == "getList" && what == "inventory") {
             if (data) {
                 var equippables = data.Response.data.buckets.Equippable;
