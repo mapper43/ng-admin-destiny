@@ -35,7 +35,7 @@ myApp.config( [
         .title('Xur')
         .actions(['back'])
         .fields([
-            nga.field('nextRefreshDate').label('Next Refresh'),
+            nga.field('nextRefreshDate').label('Next Refresh').template('<div class="nad-date">{{ value }}</div>'),
             nga.field('enabled'),
             nga.field('saleItemCategories', 'embedded_list').label('')
                 .targetFields([
@@ -123,7 +123,6 @@ myApp.config( [
     // *****************
     
     var item = nga.entity('items').identifier(nga.field('itemHash')).url(function(entityName, entityId, viewType, identifierValue, identifierName) {
-      //console.log(identifierName);
       return 'Explorer/Items/';
     });
     
@@ -132,9 +131,8 @@ myApp.config( [
     item.listView()
     .title('Items')    
     .fields([
-        nga.field('icon').label('').template('<img src="http://www.bungie.net{{ entry.values.icon }}" height="42" width="42" />'),        
+        nga.field('icon').label('').template('<img src="http://www.bungie.net{{ value }}" height="42" width="42" />'),        
         nga.field('itemName').label('Name'),
-        //nga.field('itemDescription').label('Description'),
         nga.field('itemTypeName').label('Type'),
         nga.field('tierTypeName').label('Tier'),
         nga.field('', 'template').label('').template('<span class="pull-right"><a class="btn btn-default btn-xs" href="#/manifest-6/show/{{entry.values.itemHash}}"><span class="glyphicon glyphicon-eye-open"></span>&nbsp;Details</a>'),
@@ -144,6 +142,8 @@ myApp.config( [
       nga.field('categories'),
       ])
     .actions(['back', 'export'])
+    .sortDir('ASC')
+    .sortField('itemName')
     .batchActions([]);
     
     
@@ -156,7 +156,16 @@ myApp.config( [
         nga.field('tierTypeName').label('Tier')
     ]);
     
+    var dashboardTemplate = '<div class="row"><div class="col-lg-12"><div class="page-header"><h3>Welcome to ng-admin-destiny!</h3></div></div></div>';
+    dashboardTemplate += '<i>Quick Links:</i>';
+    dashboardTemplate += '<br><div class="col-md-4"><br>';
+    dashboardTemplate += '<p><a class="btn btn-info" style="width:100%" href="#/guardians/list">Guardian Search</a></p>';
+    dashboardTemplate += '<p><a class="btn btn-info" style="width:100%" href="#/xur/show/">Xur</a></p>';
+    dashboardTemplate += '<p><a class="btn btn-info" style="width:100%" href="#/items/list?search=%7B%22categories%22:%221%22%7D">Weapons</a></p>';
+    dashboardTemplate += '</div>';
+    
     admin.dashboard(nga.dashboard()
+        .template(dashboardTemplate)
     );
      
     //*********************************
@@ -219,18 +228,14 @@ myApp.config( [
             nga.field('orders', 'embedded_list').label('Orders')
                 .targetFields([
                     nga.field('item.definition.icon').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="42" width="42" />'),
-                    //nga.field('item.itemHash').label('Name'),
                     nga.field('item.definition.itemName').label('Name'),
-                    //nga.field('item.definition.itemDescription').label('Description'),
                     nga.field('item.definition.tierTypeName').label('Tier'),
                     nga.field('item.definition.itemTypeName').label('Type'),
                 ]),
             nga.field('testWeapons', 'embedded_list').label('Test Weapons')
                 .targetFields([
                     nga.field('item.definition.icon').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="42" width="42" />'),
-                    //nga.field('item.itemHash').label('Name'),
                     nga.field('item.definition.itemName').label('Name'),
-                    //nga.field('item.definition.itemDescription').label('Description'),
                     nga.field('item.definition.tierTypeName').label('Tier'),
                     nga.field('item.definition.itemTypeName').label('Type'),
                 ]),
@@ -242,7 +247,6 @@ myApp.config( [
     //  Advisor (Other Activities)
     //*********************************
     var advisor = nga.entity('advisors').identifier(nga.field('activityHash')).url(function(entityName, viewType, identifierValue, identifierName) {
-        //console.log(identifierValue);
         urlShowArg = identifierValue;
         return 'advisors/';
     });
@@ -285,6 +289,7 @@ myApp.config( [
             //nga.field('', 'template').label('').template('<span class="pull-right"><a href="#/characters/list">Show</a>'),
             nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="characters" filter="{ platformid: entry.values.membershipType, memberid:entry.values.membershipId }" size="sm"></ma-filtered-list-button>'),
             nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="triumphs" filter="{ platformid: entry.values.membershipType, memberid:entry.values.membershipId }" size="sm"></ma-filtered-list-button>'),
+            nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="badges" filter="{ platformid: entry.values.membershipType, memberid:entry.values.membershipId }" size="sm"></ma-filtered-list-button>'),
         ])
     .filters([
       nga.field('displayname').label('').attributes({'placeholder': 'Display name'}).pinned(true),
@@ -293,6 +298,27 @@ myApp.config( [
     .batchActions([]);
     
     admin.addEntity(guardian);
+    
+    // **********************
+    //  guardians badges
+    // **********************
+    
+    var badge = nga.entity('badges')
+        .identifier(nga.field('badgeHashId'))
+        .url(function(entityName, viewType, identifierValue, identifierName) {
+            return 'Stats/GetExcellenceBadges/platformid/memberid/';
+        });
+    
+    badge.readOnly();
+    
+    badge.listView()
+        .title('Badges')
+        .fields([
+            nga.field('badgeHashId').label('hash'),
+            
+        ]);
+    
+    admin.addEntity(badge);
     
     // **********************
     //  guardians triumphs
@@ -525,9 +551,23 @@ myApp.config(['RestangularProvider', function (RestangularProvider) {
         }
         if (operation == "getList") {
             params.definitions = true;
+                
             if (what=='items'){
-                params.order='Rarity';
-                params.direction='Descending';
+                if (params._sortDir=='DESC')
+                    params.direction='descending';
+                else 
+                    params.direction='ascending';
+                    
+                
+                if (params._sortField=='itemName')
+                    params.order=1;
+                else if (params._sortField=='itemTypeName')
+                    params.order=2;
+                else if (params._sortField=='tierTypeName')
+                    params.order=3;
+                else
+                    params.order=1;
+                
             }
             
             // custom pagination params
@@ -582,12 +622,12 @@ myApp.config(['RestangularProvider', function (RestangularProvider) {
             var totalResults = data.Response.data.totalResults;
             response.totalCount=totalResults;
             
-            if (what=="items"){
-                var arr = Object.keys(data.Response.definitions.items).map(function (key) {return data.Response.definitions.items[key]});
-                console.log(arr);
-                
-                data = arr;
+            var arr = data.Response.data.itemHashes;
+            for (var i=0; i<arr.length; i++){
+                data.Response.data.itemHashes[i]=data.Response.definitions.items[arr[i]];
             }
+            data = arr;
+            
             
         }
         if (operation == "getList" && what == "activities") {
@@ -689,6 +729,15 @@ myApp.config(['RestangularProvider', function (RestangularProvider) {
             }
             
             data = data.Response.data[actId];
+        }
+        if (operation == "getList" && what == "badges") {
+            if (data){
+                //var arr = Object.keys(data.Response.data.badges).map(function (key) {return data.Response.data.badges[key]});
+                //data = arr;
+                data = data.Response.data.badges;
+            } else {
+                data = [];
+            }
         }
         if (operation == "getList" && what == "triumphs") {
             if (data){
@@ -803,24 +852,8 @@ myApp.config(['RestangularProvider', function (RestangularProvider) {
         }
         return data;
     });
+    
+    
+    
+    
 }]);
-
-//// @see https://github.com/mgonto/restangular/issues/603
-//myApp.config(function($httpProvider) {
-//    $httpProvider.interceptors.push(function() {
-//        return {
-//            request: function(config) {
-//                var pattern = /\/(\d+)$/;
-//                console.log(config.url);
-//                
-//                if (pattern.test(config.url)) {
-//                    config.params = config.params || {};
-//                    config.params['id'] = pattern.exec(config.url)[1];
-//                    config.url = config.url.replace(pattern, '');
-//                }
-//
-//                return config;
-//            },
-//        };
-//    });
-//});
