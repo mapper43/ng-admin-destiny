@@ -13,4 +13,3 @@ https://github.com/marmelab/ng-admin
 
 Bungie API:
 http://bungienetplatform.wikia.com/wiki/Endpoints
-
