@@ -16,7 +16,7 @@ export default function (nga, admin) {
     inventory.listView()
         .title('Inventory')
         .fields([
-            nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values[\'definition.icon\'] }}" height="42" width="42" />'),
+            nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values[\'definition.icon\'] }}" height="48" width="48" />'),
             //nga.field('itemHash').label('itemHash'),
             nga.field('primaryStat.value').label(''),
             nga.field('definition.itemName').label('Name'),
@@ -31,13 +31,13 @@ export default function (nga, admin) {
         .title('Inventory Item Detail')
         .actions(['back'])
         .fields([
-            nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values[\'definition.icon\'] }}" height="84" width="84" />'),
+            nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values[\'definition.icon\'] }}" height="96" width="96" />'),
             nga.field('definition.itemName').label('Name'),
             nga.field('definition.itemDescription').label('Description'),
             nga.field('primaryStat.value').label('Light'),
             nga.field('perks', 'embedded_list').label('Perks')
                 .targetFields([ 
-                    nga.field('').label('').template('<img style="background-color:gray" src="https://www.bungie.net{{ entry.values.iconPath }}" height="42" width="42" />'),
+                    nga.field('').label('').template('<img style="background-color:gray" src="https://www.bungie.net{{ entry.values.iconPath }}" height="48" width="48" />'),
                     nga.field('definition.displayName').label('Name'),
                     nga.field('definition.displayDescription').label('Description'),
                 ])

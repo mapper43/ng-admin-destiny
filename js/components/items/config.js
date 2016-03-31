@@ -17,7 +17,7 @@ export default function (nga, admin) {
     items.listView()
         .title('Items')
         .fields([
-            nga.field('icon').label('').template('<img src="http://www.bungie.net{{ value }}" height="42" width="42" />'),        
+            nga.field('icon').label('').template('<img src="http://www.bungie.net{{ value }}" height="48" width="48" />'),        
             nga.field('itemName').label('Name'),
             nga.field('itemTypeName').label('Type'),
             nga.field('tierTypeName').label('Tier'),
@@ -36,7 +36,7 @@ export default function (nga, admin) {
         .title('Item Detail')
         .actions(['back'])
         .fields([
-            nga.field('icon').label('').template('<img src="http://www.bungie.net{{ value }}" height="84" width="84" />'),        
+            nga.field('icon').label('').template('<img src="http://www.bungie.net{{ value }}" height="96" width="96" />'),        
             nga.field('itemName').label('Name'),
             nga.field('itemDescription').label('Description'),
             nga.field('itemTypeName').label('Type'),

@@ -1,25 +1,40 @@
 function requestInterceptor(RestangularProvider) {
     // use the custom query parameters function to format the API request correctly
     
-    RestangularProvider.setDefaultHeaders({'X-API-Key': 'YOUR_API_KEY'});
+    chrome.cookies.getAll({
+          'domain': '.bungie.net'
+        }, function(cookies) {
+          if (_.size(cookies) > 0) {
+            for (var i=0; i<cookies.length; i++){
+                if (cookies[i].name=='bungled') {
+                    RestangularProvider.setDefaultHeaders(
+                        {'X-API-Key': 'YOUR_API_KEY',
+                         'X-Csrf':cookies[i].value});
+                }
+            }
+
+          } else {
+            RestangularProvider.setDefaultHeaders(
+                {'X-API-Key': 'YOUR_API_KEY'});
+          }
+    });
     
-    RestangularProvider.addFullRequestInterceptor(function(element, operation, what, url, headers, params) {
-        
+    RestangularProvider.addFullRequestInterceptor(function(element, operation, what, url, headers, params,httpConfig) {    
         params.definitions='true';
-        
+         
         if (operation == "getList") {
-            if (what=='items'){
+            if (what=='items' || what=='vault' || what=='inventory'){
                 if (params._sortDir=='DESC')
                     params.direction='descending';
                 else 
                     params.direction='ascending';
                     
                 
-                if (params._sortField=='itemName')
+                if (params._sortField=='itemName'||params._sortField=='definition.itemName')
                     params.order=1;
-                else if (params._sortField=='itemTypeName')
+                else if (params._sortField=='itemTypeName'||params._sortField=='definition.itemTypeName')
                     params.order=4;
-                else if (params._sortField=='tierTypeName')
+                else if (params._sortField=='tierTypeName'||params._sortField=='definition.tierTypeName')
                     params.order=3;
                 else
                     params.order=1;
@@ -90,6 +105,7 @@ function responseInterceptor(RestangularProvider,currentPlatformId,currentMember
             for (var i=0; i< item.perks.length; i++){
                 item.perks[i].definition = data.Response.definitions.perks[item.perks[i].perkHash];
             }
+            
             data = item;
         }
         if (operation == "getList" && what == "inventory") {
@@ -116,6 +132,21 @@ function responseInterceptor(RestangularProvider,currentPlatformId,currentMember
                         arr.push(item);
                     }
                 }
+                //bungie api doesn't allow sorting by these fields
+                var arr2 = arr.sort(function(a, b) {
+                    var orderDir=1;
+                    if (response.config.params.direction=='descending')
+                        orderDir=-1;
+                    var orderField=response.config.params.order;
+                    if (orderField==1){
+                        return orderDir*((a.definition.itemName > b.definition.itemName) - (a.definition.itemName < b.definition.itemName));
+                    } else if (orderField==4){
+                        return orderDir*((a.definition.itemTypeName > b.definition.itemTypeName) - (a.definition.itemTypeName < b.definition.itemTypeName));
+                    } else if (orderField==3){
+                        return orderDir*((a.definition.tierTypeName > b.definition.tierTypeName) - (a.definition.tierTypeName < b.definition.tierTypeName));
+                    }
+                    
+                });
                 data=arr;
                
             } else {
@@ -282,6 +313,43 @@ function responseInterceptor(RestangularProvider,currentPlatformId,currentMember
             }
             
             data=arr[0];
+        }
+        if (operation == "getList" && what=="myaccount") {
+            if (data && data.Response && data.Response.destinyAccounts){
+                data=data.Response.destinyAccounts;
+            } else {
+                //var dataObj = {};
+                //dataObj.bungieLoginUrl='http://www.bungie.net';
+                //var arr = Object.keys(dataObj).map(function (key) {return dataObj[key]});
+                data = [{message:'http://www.bungie.net'}];
+            }
+        }
+        if (operation == "getList" && what=="vault") {
+            if (data && data.Response && data.Response.data){
+                for (var i=0; i<data.Response.data.items.length; i++){
+                    data.Response.data.items[i].uniqueId=data.Response.data.items[i].itemHash+'-'+data.Response.data.items[i].itemId;
+                    data.Response.data.items[i].definition=data.Response.definitions.items[data.Response.data.items[i].itemHash];
+                }
+                //bungie api doesn't allow sorting by these fields
+                var arr = data.Response.data.items.sort(function(a, b) {
+                    var orderDir=1;
+                    if (response.config.params.direction=='descending')
+                        orderDir=-1;
+                    var orderField=response.config.params.order;
+                    if (orderField==1){
+                        return orderDir*((a.definition.itemName > b.definition.itemName) - (a.definition.itemName < b.definition.itemName));
+                    } else if (orderField==4){
+                        return orderDir*((a.definition.itemTypeName > b.definition.itemTypeName) - (a.definition.itemTypeName < b.definition.itemTypeName));
+                    } else if (orderField==3){
+                        return orderDir*((a.definition.tierTypeName > b.definition.tierTypeName) - (a.definition.tierTypeName < b.definition.tierTypeName));
+                    }
+                    
+                });
+                                        
+                data=arr;
+            } else {
+                data = [];
+            }
         }
         
         return data;

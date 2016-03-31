@@ -1,4 +1,10 @@
 export default function (nga, admin) {
+    
+    var myAccountMenu= nga.menu(admin.getEntity('myaccount'))
+                        .title('My Account')
+                        .icon('<span class="fa fa-user fa-fw"></span>');
+    
+    
     return nga.menu()
         .addChild(nga.menu().title('Current Activities')
             .addChild(nga.menu().title('Nightfall').link("/nightfall/show/"))
@@ -12,6 +18,7 @@ export default function (nga, admin) {
         .addChild(nga.menu(admin.getEntity('guardians'))
             .title('Guardian Search')
             .icon('<span class="fa fa-users fa-fw"></span>'))
+        .addChild(myAccountMenu)
         .addChild(nga.menu().title('All Items by Category')
             .addChild(nga.menu().title('Primary Weapons').link("/items/list?search=%7B%22categories%22:%221%22%7D"))
             .addChild(nga.menu().title('Currency').link("/items/list?search=%7B%22categories%22:%2218%22%7D"))

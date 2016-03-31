@@ -9,7 +9,7 @@ export default function (nga, admin) {
     guardians.listView()
         .title('Guardian Search')
         .fields([
-            nga.field('iconPath').label('').template('<img src="http://www.bungie.net{{ entry.values.iconPath }}" height="42" width="42" />'),
+            nga.field('iconPath').label('').template('<img src="http://www.bungie.net{{ entry.values.iconPath }}" height="48" width="48" />'),
             nga.field('displayName').label('Display Name'),
             //nga.field('', 'template').label('').template('<span class="pull-right"><a href="#/characters/list">Show</a>'),
             nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="characters" filter="{ platformid: entry.values.membershipType, memberid:entry.values.membershipId }" size="sm"></ma-filtered-list-button>'),

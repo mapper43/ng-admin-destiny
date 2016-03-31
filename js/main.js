@@ -17,7 +17,6 @@ myApp.config(['$httpProvider', function($httpProvider) {
     $httpProvider.interceptors.push(function($q, $rootScope,$window) {
         return {
             request: function(config) {
-                
                 if (config.url.toLowerCase().indexOf('/inventory/')>-1 && (config.url.length-config.url.toLowerCase().indexOf('/inventory/'))>15){
                     var argstring = config.url.split('/').pop();
                     var arr = argstring.split('-');
@@ -55,18 +54,12 @@ myApp.config(['$httpProvider', function($httpProvider) {
     });
 }]);
 
-myApp.config(function ($windowProvider) {
-   var $window = $windowProvider.$get();
-   console.log($window);
- })
-
 myApp.config(['RestangularProvider', apiFlavor.requestInterceptor]);
 myApp.config(['RestangularProvider', apiFlavor.responseInterceptor]);
 
 myApp.config(['NgAdminConfigurationProvider', function (nga) {
     // create the admin application
     var admin = nga.application('My First Admin')
-    //    .baseApiUrl('/');
         .baseApiUrl('https://www.bungie.net/Platform/Destiny/');
     
     // add entities
@@ -84,6 +77,8 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     admin.addEntity(nga.entity('arena'));
     admin.addEntity(nga.entity('armsday'));
     admin.addEntity(nga.entity('availablebounties'));
+    admin.addEntity(nga.entity('myaccount'));
+    admin.addEntity(nga.entity('vault'));
     
     // configure entities
     require('./components/guardians/config')(nga, admin);
@@ -100,6 +95,8 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     require('./components/arena/config')(nga, admin);
     require('./components/armsday/config')(nga, admin);
     require('./components/availablebounties/config')(nga, admin);
+    require('./components/myaccount/config')(nga, admin);
+    require('./components/vault/config')(nga, admin);
     
     admin.dashboard(require('./components/dashboard/config')(nga, admin));
     admin.header(require('./header.html'));
