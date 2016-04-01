@@ -11,13 +11,22 @@ export default function (nga, admin) {
         .title('My Account')
         .fields([
         
-                nga.field('entry.values.message').label('')
-                    .template('<span ng-if="entry.values.message">Login to <a target="_blank" href="{{ value }}">bungie.net</a></span>'),
-                nga.field('').label('')
-                    .template('<img  ng-if="entry.values[\'userInfo.iconPath\']" src="http://www.bungie.net{{ entry.values[\'userInfo.iconPath\'] }}" height="42" width="42" />'),
+                nga.field('','template').label('')
+                    .template('<span ng-if="entry.values.message">Login to Bungie.net&nbsp;<button ng-controller="BungieRedirect" ng-click="goBungie()">Go</button>'),
+//                nga.field('').label('')
+//                    .template('<img  ng-if="entry.values[\'userInfo.iconPath\']" src="http://www.bungie.net{{ entry.values[\'userInfo.iconPath\'] }}" height="42" width="42" />'),
                 nga.field('userInfo.displayName').label('Name'),
                 nga.field('grimoireScore').label('Grimoire Score'),
-                nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="vault" filter="{ platformid: entry.values[\'userInfo.membershipType\'], memberid:entry.values[\'userInfo.membershipId\'] }" size="sm"></ma-filtered-list-button>'),
+                nga.field('', 'template').label('').template('<ma-filtered-list-button  ng-if="!entry.values.message" entity-name="vault" filter="{ platformid: entry.values[\'userInfo.membershipType\'], memberid:entry.values[\'userInfo.membershipId\'] }" label="Vault" size="sm"></ma-filtered-list-button>'),
+                nga.field('characters', 'embedded_list').label('Characters')
+                    .targetFields([ 
+                        nga.field('').label('')
+                    .template('<img src="http://www.bungie.net{{ entry.values.emblemPath }}" height="42" width="42" />'),
+                        nga.field('characterClass.className').label('Class'),
+                        nga.field('level').label('Level'),
+                        nga.field('powerLevel').label('Light'),
+                        nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="inventory" filter="{platformid: entry.values.membershipType,memberid:entry.values.membershipId,characterid: entry.values.characterId }" label="Inventory" size="sm"></ma-filtered-list-button>'),
+                    ])
                 //nga.field('').label('').template("<div> {{ entry.values }} </div>"),
         ])
     .actions(['back'])

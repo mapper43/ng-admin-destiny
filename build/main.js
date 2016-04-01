@@ -61,6 +61,12 @@
 	// custom API flavor
 	var apiFlavor = __webpack_require__(2);
 	
+	myApp.controller('BungieRedirect', function ($scope, $location) {
+	    $scope.goBungie = function () {
+	        //$location.url("http://www.bungie.net");
+	        chrome.tabs.create({ url: "http://www.bungie.net" });
+	    };
+	});
 	myApp.config(['$compileProvider', function ($compileProvider) {
 	    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|chrome-extension):/);
 	}]);
@@ -193,9 +199,13 @@
 	
 	            // custom pagination params
 	            if (params._page) {
-	                var start = (params._page - 1) * params._perPage;
-	                var end = params._page * params._perPage - 1;
-	                params.range = "[" + start + "," + end + "]";
+	
+	                params.page = params._page - 1;
+	                params.count = params._perPage;
+	
+	                //var start = (params._page - 1) * params._perPage;
+	                //var end = params._page * params._perPage - 1;
+	                //params.range = "[" + start + "," + end + "]";
 	                delete params._page;
 	                delete params._perPage;
 	            }
@@ -454,6 +464,16 @@
 	        }
 	        if (operation == "getList" && what == "myaccount") {
 	            if (data && data.Response && data.Response.destinyAccounts) {
+	                for (var i = 0; i < data.Response.destinyAccounts.length; i++) {
+	                    var platId = data.Response.destinyAccounts[i].userInfo.membershipType;
+	                    var memId = data.Response.destinyAccounts[i].userInfo.membershipId;
+	
+	                    for (var j = 0; j < data.Response.destinyAccounts[i].characters.length; j++) {
+	                        data.Response.destinyAccounts[i].characters[j].membershipType = platId;
+	                        data.Response.destinyAccounts[i].characters[j].membershipId = memId;
+	                    }
+	                }
+	
 	                data = data.Response.destinyAccounts;
 	            } else {
 	                //var dataObj = {};
@@ -545,7 +565,7 @@
 	
 	    characters.listView().title('Characters').fields([nga.field('emblemPath').label('').template('<img src="http://www.bungie.net{{ entry.values.emblemPath }}" height="42" width="42" />'), nga.field('characterBase.powerLevel').label('Light'), nga.field('characterBase.classDef.className').label('Class'),
 	    //nga.field('characterBase.characterId').label('id'),
-	    nga.field('characterBase.minutesPlayedTotal').label('Minutes Played'), nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="inventory" filter="{platformid: entry.values[\'characterBase.membershipType\'],memberid:entry.values[\'characterBase.membershipId\'],characterid: entry.values[\'characterBase.characterId\']}" size="sm"></ma-filtered-list-button>'), nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="progression" filter="{platformid: entry.values[\'characterBase.membershipType\'],memberid:entry.values[\'characterBase.membershipId\'],characterid: entry.values[\'characterBase.characterId\']}" size="sm"></ma-filtered-list-button>')]).actions(['back', 'export']).batchActions([]);
+	    nga.field('characterBase.minutesPlayedTotal').label('Minutes Played'), nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="inventory" filter="{platformid: entry.values[\'characterBase.membershipType\'],memberid:entry.values[\'characterBase.membershipId\'],characterid: entry.values[\'characterBase.characterId\']}" label="Inventory" size="sm"></ma-filtered-list-button>'), nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="progression" filter="{platformid: entry.values[\'characterBase.membershipType\'],memberid:entry.values[\'characterBase.membershipId\'],characterid: entry.values[\'characterBase.characterId\']}" label="Progression" size="sm"></ma-filtered-list-button>')]).actions(['back', 'export']).batchActions([]);
 	
 	    return characters;
 	};
@@ -927,9 +947,12 @@
 	        return 'https://www.bungie.net/Platform/User/GetCurrentBungieAccount/';
 	    });
 	
-	    myaccount.listView().title('My Account').fields([nga.field('entry.values.message').label('').template('<span ng-if="entry.values.message">Login to <a target="_blank" href="{{ value }}">bungie.net</a></span>'), nga.field('').label('').template('<img  ng-if="entry.values[\'userInfo.iconPath\']" src="http://www.bungie.net{{ entry.values[\'userInfo.iconPath\'] }}" height="42" width="42" />'), nga.field('userInfo.displayName').label('Name'), nga.field('grimoireScore').label('Grimoire Score'), nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="vault" filter="{ platformid: entry.values[\'userInfo.membershipType\'], memberid:entry.values[\'userInfo.membershipId\'] }" size="sm"></ma-filtered-list-button>')]).
+	    myaccount.listView().title('My Account').fields([nga.field('', 'template').label('').template('<span ng-if="entry.values.message">Login to Bungie.net&nbsp;<button ng-controller="BungieRedirect" ng-click="goBungie()">Go</button>'),
+	    //                nga.field('').label('')
+	    //                    .template('<img  ng-if="entry.values[\'userInfo.iconPath\']" src="http://www.bungie.net{{ entry.values[\'userInfo.iconPath\'] }}" height="42" width="42" />'),
+	    nga.field('userInfo.displayName').label('Name'), nga.field('grimoireScore').label('Grimoire Score'), nga.field('', 'template').label('').template('<ma-filtered-list-button  ng-if="!entry.values.message" entity-name="vault" filter="{ platformid: entry.values[\'userInfo.membershipType\'], memberid:entry.values[\'userInfo.membershipId\'] }" label="Vault" size="sm"></ma-filtered-list-button>'), nga.field('characters', 'embedded_list').label('Characters').targetFields([nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values.emblemPath }}" height="42" width="42" />'), nga.field('characterClass.className').label('Class'), nga.field('level').label('Level'), nga.field('powerLevel').label('Light'), nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="inventory" filter="{platformid: entry.values.membershipType,memberid:entry.values.membershipId,characterid: entry.values.characterId }" label="Inventory" size="sm"></ma-filtered-list-button>')])
 	    //nga.field('').label('').template("<div> {{ entry.values }} </div>"),
-	    actions(['back']).batchActions([]);
+	    ]).actions(['back']).batchActions([]);
 	
 	    return myaccount;
 	};
@@ -986,6 +1009,9 @@
 	    var dashboardTemplate = '<div class="row"><div class="col-lg-12"><div class="page-header"><h3>Welcome to ng-admin-destiny!</h3></div></div></div>';
 	    dashboardTemplate += '<i>Quick Links:</i>';
 	    dashboardTemplate += '<br><div class="col-md-4"><br>';
+	
+	    dashboardTemplate += '<p><a class="btn btn-info" style="width:100%" href="#/myaccount/list">My Account</a></p>';
+	
 	    dashboardTemplate += '<p><a class="btn btn-info" style="width:100%" href="#/guardians/list">Guardian Search</a></p>';
 	    dashboardTemplate += '<p><a class="btn btn-info" style="width:100%" href="#/xur/show/">Xur</a></p>';
 	    dashboardTemplate += '<p><a class="btn btn-info" style="width:100%" href="#/items/list?search=%7B%22categories%22:%221%22%7D">Weapons</a></p>';

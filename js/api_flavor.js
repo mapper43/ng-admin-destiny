@@ -48,9 +48,13 @@ function requestInterceptor(RestangularProvider) {
             
             // custom pagination params
             if (params._page) {
-                var start = (params._page - 1) * params._perPage;
-                var end = params._page * params._perPage - 1;
-                params.range = "[" + start + "," + end + "]";
+                
+                params.page=params._page-1;
+                params.count = params._perPage;
+                
+                //var start = (params._page - 1) * params._perPage;
+                //var end = params._page * params._perPage - 1;
+                //params.range = "[" + start + "," + end + "]";
                 delete params._page;
                 delete params._perPage;
             }
@@ -316,6 +320,17 @@ function responseInterceptor(RestangularProvider,currentPlatformId,currentMember
         }
         if (operation == "getList" && what=="myaccount") {
             if (data && data.Response && data.Response.destinyAccounts){
+                for (var i=0; i<data.Response.destinyAccounts.length; i++){
+                    var platId = data.Response.destinyAccounts[i].userInfo.membershipType;
+                    var memId = data.Response.destinyAccounts[i].userInfo.membershipId;
+                    
+                    for (var j=0; j<data.Response.destinyAccounts[i].characters.length;j++){
+                        data.Response.destinyAccounts[i].characters[j].membershipType=platId;
+                        data.Response.destinyAccounts[i].characters[j].membershipId=memId;
+                        
+                    }
+                }
+                
                 data=data.Response.destinyAccounts;
             } else {
                 //var dataObj = {};

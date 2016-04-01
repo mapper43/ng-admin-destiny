@@ -5,6 +5,13 @@ var myApp = angular.module('myApp', ['ng-admin']);
 // custom API flavor
 var apiFlavor = require('./api_flavor');
 
+myApp.controller('BungieRedirect', function($scope,$location) {
+    $scope.goBungie = function() {
+        //$location.url("http://www.bungie.net");
+        chrome.tabs.create({ url: "http://www.bungie.net" });
+    };
+                      
+})
 myApp.config( [
     '$compileProvider',
     function( $compileProvider )
