@@ -18,7 +18,7 @@ export default function (nga, admin) {
         .fields([
             nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values[\'definition.icon\'] }}" height="48" width="48" />'),
             //nga.field('itemHash').label('itemHash'),
-            nga.field('primaryStat.value').label(''),
+            nga.field('primaryStat.value').label('Light'),
             nga.field('definition.itemName').label('Name'),
             nga.field('definition.tierTypeName').label('Tier'),
             nga.field('definition.itemTypeName').label('Type'),
@@ -28,7 +28,7 @@ export default function (nga, admin) {
         .batchActions([]);
     
     inventory.showView()
-        .title('Inventory Item Detail')
+        .title('Item Detail')
         .actions(['back'])
         .fields([
             nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values[\'definition.icon\'] }}" height="96" width="96" />'),

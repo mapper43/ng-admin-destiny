@@ -7,6 +7,7 @@ function requestInterceptor(RestangularProvider) {
           if (_.size(cookies) > 0) {
             for (var i=0; i<cookies.length; i++){
                 if (cookies[i].name=='bungled') {
+                    console.log('here');
                     RestangularProvider.setDefaultHeaders(
                         {'X-API-Key': 'YOUR_API_KEY',
                          'X-Csrf':cookies[i].value});
@@ -18,6 +19,8 @@ function requestInterceptor(RestangularProvider) {
                 {'X-API-Key': 'YOUR_API_KEY'});
           }
     });
+    
+    
     
     RestangularProvider.addFullRequestInterceptor(function(element, operation, what, url, headers, params,httpConfig) {    
         params.definitions='true';
@@ -36,6 +39,8 @@ function requestInterceptor(RestangularProvider) {
                     params.order=4;
                 else if (params._sortField=='tierTypeName'||params._sortField=='definition.tierTypeName')
                     params.order=3;
+                else if (params._sortField=='primaryStat.value')
+                    params.order='primaryStat';    
                 else
                     params.order=1;
                 
@@ -103,6 +108,40 @@ function responseInterceptor(RestangularProvider,currentPlatformId,currentMember
             }
             data = arr;
         }
+        if (operation == "getList" && what == "vendors") {
+            var urlArr = response.config.url.toLowerCase().split('/');
+            var platId,charId;
+            var accountIndex = urlArr.indexOf('myaccount');
+            platId = urlArr[accountIndex-1];
+            charId = urlArr[accountIndex+2];
+            console.log(urlArr);
+            
+            var arr = Object.keys(data.Response.data.vendors).map(function (key) {return data.Response.data.vendors[key]});
+            for (var i=0; i< arr.length; i++){
+                arr[i].membershipType = platId;
+                arr[i].characterId = charId;
+                arr[i].definition = data.Response.definitions.vendorDetails[arr[i].vendorHash];
+                console.log(arr[i]);
+            }
+            data = arr;
+        }
+        if (operation == "getList" && what == "vendoritems") {
+            var arr = data.Response.data.saleItemCategories;
+            for (var i=0; i<arr.length; i++){
+                var items = arr[i].saleItems;
+                for ( var j=0; j<items.length;j++){
+                    var item =data.Response.data.saleItemCategories[i].saleItems[j];
+                    var perks = data.Response.data.saleItemCategories[i].saleItems[j].item.perks;
+                    
+                    data.Response.data.saleItemCategories[i].saleItems[j].definition = data.Response.definitions.items[item.item.itemHash];
+                    
+                    for (var k=0; k<perks.length; k++){
+                       var perk = data.Response.data.saleItemCategories[i].saleItems[j].item.perks[k]; data.Response.data.saleItemCategories[i].saleItems[j].item.perks[k].definition = data.Response.definitions.perks[perk.perkHash];
+                    }
+                }
+            }
+            data = data.Response.data.saleItemCategories;  
+        }
         if (operation == "get" && what == "inventory") {
             var item = data.Response.data.item;
             item.definition = data.Response.definitions.items[item.itemHash];
@@ -148,6 +187,19 @@ function responseInterceptor(RestangularProvider,currentPlatformId,currentMember
                         return orderDir*((a.definition.itemTypeName > b.definition.itemTypeName) - (a.definition.itemTypeName < b.definition.itemTypeName));
                     } else if (orderField==3){
                         return orderDir*((a.definition.tierTypeName > b.definition.tierTypeName) - (a.definition.tierTypeName < b.definition.tierTypeName));
+                    } else if (orderField=='primaryStat'){
+                        var statA,statB;
+                        if (a.primaryStat && a.primaryStat.value){
+                            statA = a.primaryStat.value;
+                        }else{
+                            statA = "0";
+                        }
+                        if (b.primaryStat && b.primaryStat.value){
+                            statB = b.primaryStat.value;
+                        }else{
+                            statB = "0";
+                        }
+                        return orderDir*((statA > statB) - (statA < statB));
                     }
                     
                 });
@@ -339,11 +391,70 @@ function responseInterceptor(RestangularProvider,currentPlatformId,currentMember
                 data = [{message:'http://www.bungie.net'}];
             }
         }
+        if (operation == "get" && what == "vaultitem"){
+            data.Response.data.inventoryItem.talentGrid = data.Response.definitions.talentGrids[data.Response.data.inventoryItem.talentGridHash];
+            
+            var perkHashes = data.Response.data.inventoryItem.perkHashes;
+            data.Response.data.inventoryItem.perks=[];
+            
+            for (var i=0; i<perkHashes.length; i++){
+                data.Response.data.inventoryItem.perks.push(data.Response.definitions.perks[perkHashes[i]]);
+            }
+            var nodes = [];
+            if (data.Response.data.inventoryItem.talentGrid && data.Response.data.inventoryItem.talentGrid.nodes)
+                nodes=data.Response.data.inventoryItem.talentGrid.nodes;
+            
+            for (var i=0; i<nodes.length; i++){
+                var steps = data.Response.data.inventoryItem.talentGrid.nodes[i].steps;
+                for (var j=0; j<steps.length; j++){
+                    var perkHashes = steps[j].perkHashes;
+                    data.Response.data.inventoryItem.talentGrid.nodes[i].steps[j].perks=[];
+                    for (var k=0; k<perkHashes.length; k++){
+                        data.Response.data.inventoryItem.talentGrid.nodes[i].steps[j].perks.push(data.Response.definitions.perks[perkHashes[k]]);
+                        
+                    }
+                }
+            }
+            data = data.Response.data.inventoryItem;
+            
+            
+            
+            
+        }
         if (operation == "getList" && what=="vault") {
             if (data && data.Response && data.Response.data){
+                var platId,memId,charId;
+                
+                var urlParams = window.location.hash.split('?').pop().split(',');
+                for (var i=0; i<urlParams.length; i++){
+                    if (urlParams[i].indexOf('characterid')>-1)
+                        charId = urlParams[i].split(':').pop().replace(/%22/g,'').replace(/%7D/g,'');
+                    if (urlParams[i].indexOf('platformid')>-1)
+                        platId = urlParams[i].split(':').pop().replace(/%22/g,'').replace(/%7D/g,'');
+                    if (urlParams[i].indexOf('memberid')>-1)
+                        memId = urlParams[i].split(':').pop().replace(/%22/g,'').replace(/%7D/g,'');
+                }
+                console.log(charId);
+                console.log(memId);
+                console.log(platId);
+                
                 for (var i=0; i<data.Response.data.items.length; i++){
+                    
+                    data.Response.data.items[i].currentCharacterId=charId;
+                    data.Response.data.items[i].currentPlatformId=platId;
+                    data.Response.data.items[i].currentMemberId=memId;
+                    
                     data.Response.data.items[i].uniqueId=data.Response.data.items[i].itemHash+'-'+data.Response.data.items[i].itemId;
                     data.Response.data.items[i].definition=data.Response.definitions.items[data.Response.data.items[i].itemHash];
+                    
+                    data.Response.data.items[i].talentGrid = data.Response.definitions.talentGrids[data.Response.data.items[i].definition.talentGridHash];
+                    
+//                    var nodes=[];
+//                    if (data.Response.data.items[i].talentGrid && data.Response.data.items[i].talentGrid.nodes){
+//                        nodes=data.Response.data.items[i].talentGrid.nodes;
+//                    }
+//                    console.log(nodes);
+                
                 }
                 //bungie api doesn't allow sorting by these fields
                 var arr = data.Response.data.items.sort(function(a, b) {
@@ -357,6 +468,19 @@ function responseInterceptor(RestangularProvider,currentPlatformId,currentMember
                         return orderDir*((a.definition.itemTypeName > b.definition.itemTypeName) - (a.definition.itemTypeName < b.definition.itemTypeName));
                     } else if (orderField==3){
                         return orderDir*((a.definition.tierTypeName > b.definition.tierTypeName) - (a.definition.tierTypeName < b.definition.tierTypeName));
+                    } else if (orderField=='primaryStat'){
+                        var statA,statB;
+                        if (a.primaryStat && a.primaryStat.value){
+                            statA = a.primaryStat.value;
+                        }else{
+                            statA = "0";
+                        }
+                        if (b.primaryStat && b.primaryStat.value){
+                            statB = b.primaryStat.value;
+                        }else{
+                            statB = "0";
+                        }
+                        return orderDir*((statA > statB) - (statA < statB));
                     }
                     
                 });

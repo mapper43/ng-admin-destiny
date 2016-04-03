@@ -34,27 +34,35 @@ myApp.config(['$httpProvider', function($httpProvider) {
                                     .replace('characterid',arr[2])
                                     .replace(argstring,arr[3]) + '/';
                 }
-                if (config.params && config.params.filter && config.params.filter.categories) {
-                    config.url=config.url + '/?categories='+config.params.filter.categories;
-                }
-                if (config.params && config.params.filter && config.params.filter.displayname) {
-                    config.url =config.url.replace('0', config.params.filter.displayname);
-                }
+                if (config.params && config.params.filter){
+                    if (config.params.filter.categories) {
+                        config.url=config.url + '/?categories='+config.params.filter.categories;
+                    }
+                    if (config.params.filter.displayname) {
+                        config.url =config.url.replace('0', config.params.filter.displayname);
+                    }
                 
-                if (config.params && config.params.filter && config.params.filter.platformid && 
-                    config.params.filter.memberid) {
-                    config.url =config.url.replace('platformid', config.params.filter.platformid).replace('memberid', config.params.filter.memberid);
-                    
+                    if (config.params.filter.platformid) {
+                        config.url =config.url.replace('platformid', config.params.filter.platformid);
+
+                    }
+                    if (config.params.filter.memberid) {
+                        config.url =config.url.replace('memberid', config.params.filter.memberid);
+
+                    }
+                    if (config.params.filter.characterid) { 
+                        config.url =config.url.replace('characterid', config.params.filter.characterid);
+                    }
+                    if (config.params.filter.vendorid) { 
+                        config.url =config.url.replace('vendorid', config.params.filter.vendorid);
+                    }
+                    if (config.url.indexOf('manifest-')>-1){
+                        config.url = config.url.replace('manifest-','manifest/') + '/';
+                    }
+                    if (config.params && config.params.filter)
+                        delete config.params.filter;
+
                 }
-                if (config.params && config.params.filter && config.params.filter.characterid) { 
-                    config.url =config.url.replace('characterid', config.params.filter.characterid);
-                }
-                if (config.url.indexOf('manifest-')>-1){
-                    config.url = config.url.replace('manifest-','manifest/') + '/';
-                }
-                if (config.params && config.params.filter)
-                    delete config.params.filter;
-                
                 return config;
             },
         };
@@ -86,6 +94,9 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     admin.addEntity(nga.entity('availablebounties'));
     admin.addEntity(nga.entity('myaccount'));
     admin.addEntity(nga.entity('vault'));
+    admin.addEntity(nga.entity('vaultitem'));
+    admin.addEntity(nga.entity('vendors'));
+    admin.addEntity(nga.entity('vendoritems'));
     
     // configure entities
     require('./components/guardians/config')(nga, admin);
@@ -104,6 +115,9 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     require('./components/availablebounties/config')(nga, admin);
     require('./components/myaccount/config')(nga, admin);
     require('./components/vault/config')(nga, admin);
+    require('./components/vaultitem/config')(nga, admin);
+    require('./components/vendors/config')(nga, admin);
+    require('./components/vendoritems/config')(nga, admin);
     
     admin.dashboard(require('./components/dashboard/config')(nga, admin));
     admin.header(require('./header.html'));
