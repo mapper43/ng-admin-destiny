@@ -5,13 +5,33 @@ var myApp = angular.module('myApp', ['ng-admin']);
 // custom API flavor
 var apiFlavor = require('./api_flavor');
 
+
 myApp.controller('BungieRedirect', function($scope,$location) {
     $scope.goBungie = function() {
-        //$location.url("http://www.bungie.net");
         chrome.tabs.create({ url: "http://www.bungie.net" });
     };
-                      
-})
+    $scope.refreshPage = function() {
+        chrome.tabs.getSelected(null, function(tab) {
+            
+            chrome.tabs.update(tab.id,{'url':'index.html#/dashboard'});
+            
+        });
+    };
+});
+
+var chart = require('chart');
+var chartjs = require('angular-chartjs');
+////
+//myApp.controller('StackedBarCtrl', function ($scope) {
+//    $scope.labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+//    $scope.type = 'StackedBar';
+//
+//    $scope.data = [
+//      [65, 59, 90, 81, 56, 55, 40],
+//      [28, 48, 40, 19, 96, 27, 100]
+//    ];
+//  });
+
 myApp.config( [
     '$compileProvider',
     function( $compileProvider )
@@ -20,20 +40,12 @@ myApp.config( [
     }
 ]);
 
+
 myApp.config(['$httpProvider', function($httpProvider) {
     $httpProvider.interceptors.push(function($q, $rootScope,$window) {
         return {
             request: function(config) {
-                if (config.url.toLowerCase().indexOf('/inventory/')>-1 && (config.url.length-config.url.toLowerCase().indexOf('/inventory/'))>15){
-                    var argstring = config.url.split('/').pop();
-                    var arr = argstring.split('-');
-                    if (arr.length==4)
-                        config.url = config.url
-                                    .replace('platformid',arr[0])
-                                    .replace('memberid',arr[1])
-                                    .replace('characterid',arr[2])
-                                    .replace(argstring,arr[3]) + '/';
-                }
+                
                 if (config.params && config.params.filter){
                     if (config.params.filter.categories) {
                         config.url=config.url + '/?categories='+config.params.filter.categories;
@@ -41,7 +53,12 @@ myApp.config(['$httpProvider', function($httpProvider) {
                     if (config.params.filter.displayname) {
                         config.url =config.url.replace('0', config.params.filter.displayname);
                     }
-                
+                    if (config.params.filter.unique_id) {
+                        var arr = config.params.filter.unique_id.split('-');
+                        config.url = config.url.replace('platformid',arr[0]);
+                        config.url = config.url.replace('memberid',arr[1]);
+                        config.url = config.url.replace('characterid',arr[2]);
+                    }
                     if (config.params.filter.platformid) {
                         config.url =config.url.replace('platformid', config.params.filter.platformid);
 
@@ -55,6 +72,9 @@ myApp.config(['$httpProvider', function($httpProvider) {
                     }
                     if (config.params.filter.vendorid) { 
                         config.url =config.url.replace('vendorid', config.params.filter.vendorid);
+                    }
+                    if (config.params.filter.activityid) { 
+                        config.url =config.url.replace('activityid', config.params.filter.activityid);
                     }
                     if (config.url.indexOf('manifest-')>-1){
                         config.url = config.url.replace('manifest-','manifest/') + '/';
@@ -74,13 +94,18 @@ myApp.config(['RestangularProvider', apiFlavor.responseInterceptor]);
 
 myApp.config(['NgAdminConfigurationProvider', function (nga) {
     // create the admin application
-    var admin = nga.application('My First Admin')
+    var admin = nga.application('ng-admin-destiny')
         .baseApiUrl('https://www.bungie.net/Platform/Destiny/');
+
     
     // add entities
     admin.addEntity(nga.entity('guardians'));
     admin.addEntity(nga.entity('characters'));
+    admin.addEntity(nga.entity('charactersummary'));
     admin.addEntity(nga.entity('inventory'));
+    admin.addEntity(nga.entity('activities'));
+    admin.addEntity(nga.entity('carnagereport'));
+    admin.addEntity(nga.entity('stats'));
     admin.addEntity(nga.entity('triumphs'));
     admin.addEntity(nga.entity('progression'));
     admin.addEntity(nga.entity('items'));
@@ -101,7 +126,11 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
     // configure entities
     require('./components/guardians/config')(nga, admin);
     require('./components/characters/config')(nga, admin);
+    require('./components/charactersummary/config')(nga, admin);
     require('./components/inventory/config')(nga, admin);
+    require('./components/activities/config')(nga, admin);
+    require('./components/carnagereport/config')(nga, admin);
+    require('./components/stats/config')(nga, admin);
     require('./components/triumphs/config')(nga, admin);
     require('./components/progression/config')(nga, admin);
     require('./components/items/config')(nga, admin);
@@ -125,4 +154,6 @@ myApp.config(['NgAdminConfigurationProvider', function (nga) {
 
     // attach the admin application to the DOM and execute it
     nga.configure(admin);
+    
+    
 }]);

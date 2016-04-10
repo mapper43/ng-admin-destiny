@@ -1,0 +1,37 @@
+<br>
+<h3 class="col-lg-12">My Account</h3>
+<hr>
+<div class="col-md-12">
+    <div>
+        <div>
+            <div ng-if="!entry.values.destinyAccounts">
+                Login to <a href="https://www.bungie.net" target="_blank">Bungie.net</a>
+                <button style="margin-left:20px" ng-controller="BungieRedirect" ng-click="refreshPage()">Refresh</button>
+            </div>
+            <div ng-repeat="n in entry.values.destinyAccounts">
+                <div class="col-md-2">
+                    <h4>{{n.userInfo.displayName}}</h4><hr>
+                    <h5>Grimoire Score:<br><br>{{n.grimoireScore}}</h5>
+                    <br>
+                    <div><ma-filtered-list-button entity-name="vault" filter="{ platformid: n.userInfo.membershipType,characterid:n.characters[0].characterId,memberid:n.userInfo.membershipId }" label="Vault" size="sm"></ma-filtered-list-button></div><br>
+                    <div><ma-filtered-list-button entity-name="triumphs" filter="{ platformid: n.userInfo.membershipType, memberid:n.userInfo.membershipId }" label="Triumphs" size="sm"></ma-filtered-list-button></div><br>
+                </div>
+                <div class="col-md-10" style="padding:20px;padding-left:50px">
+                            <div ng-repeat="c in n.characters">
+                                <div class="row">
+                                    <a href="#/charactersummary/show/{{c.membershipType}}-{{c.membershipId}}-{{c.characterId}}">
+                                        <div style="background-image: url('http://www.bungie.net{{ c.backgroundPath }}'); height:96px; width: 474px;">
+                                            <div style="pull-left; float:left;background-image: url(http://www.bungie.net{{ c.emblemPath }}); height:96px; width: 96px;" ></div>
+                                            <div class="pull-left" style="margin:10px;">                                    <h4 style="color:white;">{{ c.characterClass.className }}</h4>             <p style="color:white;">{{ c.race.raceName }} {{ c.gender.genderName }}</p></div>                                                                 <div class="pull-right" style="margin:20px">                                   <p style="color:white;">Level {{ c.level}}</p>                             <p style="color:yellow;font-size:1.2em;font-weight:bold;">{{ c.powerLevel }}</p>                                                         </div>                                                              
+                                        </div>
+                                    </a>
+                                </div>
+                                <br>
+                            </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

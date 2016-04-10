@@ -12,7 +12,7 @@ export default function (nga, admin) {
             nga.field('iconPath').label('').template('<img src="http://www.bungie.net{{ entry.values.iconPath }}" height="48" width="48" />'),
             nga.field('displayName').label('Display Name'),
             //nga.field('', 'template').label('').template('<span class="pull-right"><a href="#/characters/list">Show</a>'),
-            nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="characters" filter="{ platformid: entry.values.membershipType, memberid:entry.values.membershipId }" label="Characters" size="sm"></ma-filtered-list-button>'),
+            nga.field('', 'template').label('').template('<a class="btn btn-primary" href="#/characters/show/{{entry.values.membershipType}}-{{entry.values.membershipId}}">Characters</a>'),
             nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="triumphs" filter="{ platformid: entry.values.membershipType, memberid:entry.values.membershipId }" label="Triumphs" size="sm"></ma-filtered-list-button>'),
             //nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="badges" filter="{ platformid: entry.values.membershipType, memberid:entry.values.membershipId }" size="sm"></ma-filtered-list-button>'),
         ])

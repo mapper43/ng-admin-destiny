@@ -9,11 +9,10 @@ export default function (nga, admin) {
     });
     
     vault.listView()
-    .title('Vault')   
+    .title('My Vault')   
     .fields([
         nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values[\'definition.icon\'] }}" height="48" width="48" />'),
         nga.field('primaryStat.value').label('Light'),
-        nga.field('definition.talentGridHash').label('Light'),
         nga.field('definition.itemName').label('Name'),
         nga.field('definition.itemTypeName').label('Type'),
         nga.field('definition.tierTypeName').label('Tier'),

@@ -45,7 +45,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	__webpack_require__(1);
-	module.exports = __webpack_require__(125);
+	module.exports = __webpack_require__(145);
 
 
 /***/ },
@@ -63,10 +63,29 @@
 	
 	myApp.controller('BungieRedirect', function ($scope, $location) {
 	    $scope.goBungie = function () {
-	        //$location.url("http://www.bungie.net");
 	        chrome.tabs.create({ url: "http://www.bungie.net" });
 	    };
+	    $scope.refreshPage = function () {
+	        chrome.tabs.getSelected(null, function (tab) {
+	
+	            chrome.tabs.update(tab.id, { 'url': 'index.html#/dashboard' });
+	        });
+	    };
 	});
+	
+	var chart = __webpack_require__(3);
+	var chartjs = __webpack_require__(14);
+	////
+	//myApp.controller('StackedBarCtrl', function ($scope) {
+	//    $scope.labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+	//    $scope.type = 'StackedBar';
+	//
+	//    $scope.data = [
+	//      [65, 59, 90, 81, 56, 55, 40],
+	//      [28, 48, 40, 19, 96, 27, 100]
+	//    ];
+	//  });
+	
 	myApp.config(['$compileProvider', function ($compileProvider) {
 	    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|chrome-extension):/);
 	}]);
@@ -75,11 +94,7 @@
 	    $httpProvider.interceptors.push(function ($q, $rootScope, $window) {
 	        return {
 	            request: function request(config) {
-	                if (config.url.toLowerCase().indexOf('/inventory/') > -1 && config.url.length - config.url.toLowerCase().indexOf('/inventory/') > 15) {
-	                    var argstring = config.url.split('/').pop();
-	                    var arr = argstring.split('-');
-	                    if (arr.length == 4) config.url = config.url.replace('platformid', arr[0]).replace('memberid', arr[1]).replace('characterid', arr[2]).replace(argstring, arr[3]) + '/';
-	                }
+	
 	                if (config.params && config.params.filter) {
 	                    if (config.params.filter.categories) {
 	                        config.url = config.url + '/?categories=' + config.params.filter.categories;
@@ -87,7 +102,12 @@
 	                    if (config.params.filter.displayname) {
 	                        config.url = config.url.replace('0', config.params.filter.displayname);
 	                    }
-	
+	                    if (config.params.filter.unique_id) {
+	                        var arr = config.params.filter.unique_id.split('-');
+	                        config.url = config.url.replace('platformid', arr[0]);
+	                        config.url = config.url.replace('memberid', arr[1]);
+	                        config.url = config.url.replace('characterid', arr[2]);
+	                    }
 	                    if (config.params.filter.platformid) {
 	                        config.url = config.url.replace('platformid', config.params.filter.platformid);
 	                    }
@@ -99,6 +119,9 @@
 	                    }
 	                    if (config.params.filter.vendorid) {
 	                        config.url = config.url.replace('vendorid', config.params.filter.vendorid);
+	                    }
+	                    if (config.params.filter.activityid) {
+	                        config.url = config.url.replace('activityid', config.params.filter.activityid);
 	                    }
 	                    if (config.url.indexOf('manifest-') > -1) {
 	                        config.url = config.url.replace('manifest-', 'manifest/') + '/';
@@ -116,12 +139,16 @@
 	
 	myApp.config(['NgAdminConfigurationProvider', function (nga) {
 	    // create the admin application
-	    var admin = nga.application('My First Admin').baseApiUrl('https://www.bungie.net/Platform/Destiny/');
+	    var admin = nga.application('ng-admin-destiny').baseApiUrl('https://www.bungie.net/Platform/Destiny/');
 	
 	    // add entities
 	    admin.addEntity(nga.entity('guardians'));
 	    admin.addEntity(nga.entity('characters'));
+	    admin.addEntity(nga.entity('charactersummary'));
 	    admin.addEntity(nga.entity('inventory'));
+	    admin.addEntity(nga.entity('activities'));
+	    admin.addEntity(nga.entity('carnagereport'));
+	    admin.addEntity(nga.entity('stats'));
 	    admin.addEntity(nga.entity('triumphs'));
 	    admin.addEntity(nga.entity('progression'));
 	    admin.addEntity(nga.entity('items'));
@@ -140,29 +167,33 @@
 	    admin.addEntity(nga.entity('vendoritems'));
 	
 	    // configure entities
-	    __webpack_require__(3)(nga, admin);
-	    __webpack_require__(4)(nga, admin);
-	    __webpack_require__(5)(nga, admin);
-	    __webpack_require__(6)(nga, admin);
-	    __webpack_require__(7)(nga, admin);
-	    __webpack_require__(8)(nga, admin);
-	    __webpack_require__(9)(nga, admin);
-	    __webpack_require__(10)(nga, admin);
-	    __webpack_require__(11)(nga, admin);
-	    __webpack_require__(12)(nga, admin);
-	    __webpack_require__(13)(nga, admin);
-	    __webpack_require__(14)(nga, admin);
 	    __webpack_require__(15)(nga, admin);
 	    __webpack_require__(16)(nga, admin);
-	    __webpack_require__(17)(nga, admin);
-	    __webpack_require__(18)(nga, admin);
-	    __webpack_require__(19)(nga, admin);
-	    __webpack_require__(20)(nga, admin);
-	    __webpack_require__(21)(nga, admin);
+	    __webpack_require__(118)(nga, admin);
+	    __webpack_require__(120)(nga, admin);
+	    __webpack_require__(121)(nga, admin);
+	    __webpack_require__(122)(nga, admin);
+	    __webpack_require__(123)(nga, admin);
+	    __webpack_require__(124)(nga, admin);
+	    __webpack_require__(125)(nga, admin);
+	    __webpack_require__(126)(nga, admin);
+	    __webpack_require__(127)(nga, admin);
+	    __webpack_require__(128)(nga, admin);
+	    __webpack_require__(129)(nga, admin);
+	    __webpack_require__(130)(nga, admin);
+	    __webpack_require__(131)(nga, admin);
+	    __webpack_require__(132)(nga, admin);
+	    __webpack_require__(133)(nga, admin);
+	    __webpack_require__(134)(nga, admin);
+	    __webpack_require__(135)(nga, admin);
+	    __webpack_require__(137)(nga, admin);
+	    __webpack_require__(138)(nga, admin);
+	    __webpack_require__(139)(nga, admin);
+	    __webpack_require__(140)(nga, admin);
 	
-	    admin.dashboard(__webpack_require__(22)(nga, admin));
-	    admin.header(__webpack_require__(123));
-	    admin.menu(__webpack_require__(124)(nga, admin));
+	    admin.dashboard(__webpack_require__(141)(nga, admin));
+	    admin.header(__webpack_require__(143));
+	    admin.menu(__webpack_require__(144)(nga, admin));
 	
 	    // attach the admin application to the DOM and execute it
 	    nga.configure(admin);
@@ -180,33 +211,41 @@
 	function requestInterceptor(RestangularProvider) {
 	    // use the custom query parameters function to format the API request correctly
 	
+	    RestangularProvider.setDefaultHeaders({ 'X-API-Key': 'a119bbcfd2974bf6971ca1761aeb34a5' });
+	
 	    chrome.cookies.getAll({
 	        'domain': '.bungie.net'
 	    }, function (cookies) {
 	        if (_.size(cookies) > 0) {
 	            for (var i = 0; i < cookies.length; i++) {
 	                if (cookies[i].name == 'bungled') {
-	                    console.log('here');
 	                    RestangularProvider.setDefaultHeaders({ 'X-API-Key': 'a119bbcfd2974bf6971ca1761aeb34a5',
 	                        'X-Csrf': cookies[i].value });
 	                }
 	            }
-	        } else {
-	            RestangularProvider.setDefaultHeaders({ 'X-API-Key': 'a119bbcfd2974bf6971ca1761aeb34a5' });
 	        }
 	    });
 	
 	    RestangularProvider.addFullRequestInterceptor(function (element, operation, what, url, headers, params, httpConfig) {
+	
 	        params.definitions = 'true';
 	
 	        if (operation == "getList") {
 	            if (what == 'items' || what == 'vault' || what == 'inventory') {
+	
 	                if (params._sortDir == 'DESC') params.direction = 'descending';else params.direction = 'ascending';
 	
-	                if (params._sortField == 'itemName' || params._sortField == 'definition.itemName') params.order = 1;else if (params._sortField == 'itemTypeName' || params._sortField == 'definition.itemTypeName') params.order = 4;else if (params._sortField == 'tierTypeName' || params._sortField == 'definition.tierTypeName') params.order = 3;else if (params._sortField == 'primaryStat.value') params.order = 'primaryStat';else params.order = 1;
+	                console.log(params._sortField);
+	
+	                if (params._sortField == 'itemName' || params._sortField == 'definition.itemName') params.order = 1;else if (params._sortField == 'itemTypeName' || params._sortField == 'definition.itemTypeName') params.order = 4;else if (params._sortField == 'tierTypeName' || params._sortField == 'definition.tierTypeName') params.order = 3;else if (params._sortField == 'primaryStat.value') params.order = 'primaryStat';else params.order = 'primaryStat';
 	            }
 	
 	            if (params._filters) {
+	                if (what == 'vault') {
+	                    params.characterid = params._filters.characterid;
+	                    params.memberid = params._filters.memberid;
+	                    params.platformid = params._filters.platformid;
+	                }
 	                params.filter = params._filters;
 	                delete params._filters;
 	            }
@@ -256,7 +295,18 @@
 	                data = [];
 	            }
 	        }
-	
+	        if (operation == "get" && what == "characters") {
+	            if (data) {
+	                for (var i = 0; i < data.Response.data.characters.length; i++) {
+	                    data.Response.data.characters[i].race = data.Response.definitions.races[data.Response.data.characters[i].characterBase.raceHash];
+	                    data.Response.data.characters[i].gender = data.Response.definitions.genders[data.Response.data.characters[i].characterBase.genderHash];
+	                    data.Response.data.characters[i]['class'] = data.Response.definitions.classes[data.Response.data.characters[i].characterBase.classHash];
+	                }
+	                data = data.Response.data;
+	            } else {
+	                data = null;
+	            }
+	        }
 	        if (operation == "getList" && what == "characters") {
 	            var arr = Object.keys(data.Response.data.characters).map(function (key) {
 	                return data.Response.data.characters[key];
@@ -267,13 +317,38 @@
 	            }
 	            data = arr;
 	        }
+	        if (operation == "get" && what == "charactersummary") {
+	            if (data) {
+	                data.Response.data.uniqueId = data.Response.data.characterBase.membershipType + '-' + data.Response.data.characterBase.membershipId + '-' + data.Response.data.characterBase.characterId;
+	                data.Response.data.characterBase['class'] = data.Response.definitions.classes[data.Response.data.characterBase.classHash];
+	                data.Response.data.characterBase.race = data.Response.definitions.races[data.Response.data.characterBase.raceHash];
+	                data.Response.data.characterBase.gender = data.Response.definitions.genders[data.Response.data.characterBase.genderHash];
+	
+	                for (var key in data.Response.data.characterBase.stats) {
+	                    var obj = data.Response.data.characterBase.stats[key];
+	                    data.Response.data.characterBase.stats[key].definition = data.Response.definitions.stats[obj.statHash];
+	                }
+	                for (var i = 0; i < data.Response.data.characterBase.peerView.equipment.length; i++) {
+	                    var obj = data.Response.data.characterBase.peerView.equipment[i];
+	                    data.Response.data.characterBase.peerView.equipment[i].definition = data.Response.definitions.items[obj.itemHash];
+	
+	                    if (data.Response.data.characterBase.peerView.equipment[i].definition.stats[data.Response.data.characterBase.peerView.equipment[i].definition.primaryBaseStatHash]) {
+	                        data.Response.data.characterBase.peerView.equipment[i].primaryStat = data.Response.data.characterBase.peerView.equipment[i].definition.stats[data.Response.data.characterBase.peerView.equipment[i].definition.primaryBaseStatHash].value;
+	                    } else {
+	                        data.Response.data.characterBase.peerView.equipment[i].primaryStat = 0;
+	                    }
+	                }
+	                data = data.Response.data;
+	            } else {
+	                data = [];
+	            }
+	        }
 	        if (operation == "getList" && what == "vendors") {
 	            var urlArr = response.config.url.toLowerCase().split('/');
 	            var platId, charId;
 	            var accountIndex = urlArr.indexOf('myaccount');
 	            platId = urlArr[accountIndex - 1];
 	            charId = urlArr[accountIndex + 2];
-	            console.log(urlArr);
 	
 	            var arr = Object.keys(data.Response.data.vendors).map(function (key) {
 	                return data.Response.data.vendors[key];
@@ -282,7 +357,6 @@
 	                arr[i].membershipType = platId;
 	                arr[i].characterId = charId;
 	                arr[i].definition = data.Response.definitions.vendorDetails[arr[i].vendorHash];
-	                console.log(arr[i]);
 	            }
 	            data = arr;
 	        }
@@ -332,7 +406,7 @@
 	                        item.currentCharacterId = charId;
 	                        item.currentPlatformId = platId;
 	                        item.currentMemberId = memId;
-	
+	                        item.unique_id = platId + '-' + memId + '-' + charId;
 	                        arr.push(item);
 	                    }
 	                }
@@ -362,6 +436,45 @@
 	                        return orderDir * ((statA > statB) - (statA < statB));
 	                    }
 	                });
+	                data = arr;
+	            } else {
+	                data = [];
+	            }
+	        }
+	        if (operation == "getList" && what == "activities") {
+	            if (data) {
+	                var activities = data.Response.data.available;
+	                var definitions = data.Response.definitions.activities;
+	                for (var i = 0; i < activities.length; i++) {
+	                    data.Response.data.available[i].definition = definitions[activities[i].activityHash];
+	                }
+	                data = data.Response.data.available;
+	            } else {
+	                data = [];
+	            }
+	        }
+	        if (operation == "getList" && what == "carnagereport") {
+	            if (data) {
+	
+	                for (var i = 0; i < data.Response.data.entries.length; i++) {
+	                    data.Response.data.entries[i].entryid = i;
+	                }
+	                data = data.Response.data.entries;
+	            } else {
+	                data = [];
+	            }
+	        }
+	        if (operation == "getList" && what == "stats") {
+	
+	            if (data) {
+	                var arr = [];
+	
+	                for (var i in data.Response) {
+	                    var statObj = {};
+	                    statObj.statsval = data.Response[i];
+	                    statObj.keyval = i;
+	                    arr.push(statObj);
+	                }
 	                data = arr;
 	            } else {
 	                data = [];
@@ -485,7 +598,7 @@
 	            if (data && data.Response && data.Response.data && data.Response.data.weeklyCrucible) {
 	
 	                var actId = data.Response.data.weeklyCrucible[0].activityBundleHash;
-	                console.log(actId);
+	                //console.log(actId);
 	
 	                data.Response.data.weeklyCrucible[0].definition = data.Response.definitions.activityBundles[actId];
 	
@@ -539,9 +652,14 @@
 	
 	                data = data.Response.destinyAccounts;
 	            } else {
-	                //var dataObj = {};
-	                //dataObj.bungieLoginUrl='http://www.bungie.net';
-	                //var arr = Object.keys(dataObj).map(function (key) {return dataObj[key]});
+	                data = [{ message: 'http://www.bungie.net' }];
+	            }
+	        }
+	        if (operation == "get" && what == "myaccount") {
+	            if (data && data.Response && data.Response.destinyAccounts) {
+	                data.Response.defaultSortField = 'vault_ListView.primaryStat.value';
+	                data = data.Response;
+	            } else {
 	                data = [{ message: 'http://www.bungie.net' }];
 	            }
 	        }
@@ -572,16 +690,10 @@
 	        if (operation == "getList" && what == "vault") {
 	            if (data && data.Response && data.Response.data) {
 	                var platId, memId, charId;
-	
-	                var urlParams = window.location.hash.split('?').pop().split(',');
-	                for (var i = 0; i < urlParams.length; i++) {
-	                    if (urlParams[i].indexOf('characterid') > -1) charId = urlParams[i].split(':').pop().replace(/%22/g, '').replace(/%7D/g, '');
-	                    if (urlParams[i].indexOf('platformid') > -1) platId = urlParams[i].split(':').pop().replace(/%22/g, '').replace(/%7D/g, '');
-	                    if (urlParams[i].indexOf('memberid') > -1) memId = urlParams[i].split(':').pop().replace(/%22/g, '').replace(/%7D/g, '');
-	                }
-	                console.log(charId);
-	                console.log(memId);
-	                console.log(platId);
+	                //console.log(url);
+	                charId = response.config.params.characterid;
+	                platId = response.config.params.platformid;
+	                memId = response.config.params.memberid;
 	
 	                for (var i = 0; i < data.Response.data.items.length; i++) {
 	
@@ -593,15 +705,11 @@
 	                    data.Response.data.items[i].definition = data.Response.definitions.items[data.Response.data.items[i].itemHash];
 	
 	                    data.Response.data.items[i].talentGrid = data.Response.definitions.talentGrids[data.Response.data.items[i].definition.talentGridHash];
-	
-	                    //                    var nodes=[];
-	                    //                    if (data.Response.data.items[i].talentGrid && data.Response.data.items[i].talentGrid.nodes){
-	                    //                        nodes=data.Response.data.items[i].talentGrid.nodes;
-	                    //                    }
-	                    //                    console.log(nodes);
 	                }
 	                //bungie api doesn't allow sorting by these fields
 	                var arr = data.Response.data.items.sort(function (a, b) {
+	                    console.log(response.config.params.order);
+	
 	                    var orderDir = 1;
 	                    if (response.config.params.direction == 'descending') orderDir = -1;
 	                    var orderField = response.config.params.order;
@@ -641,6 +749,2129 @@
 
 /***/ },
 /* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var lib = __webpack_require__(4);
+	var legend = __webpack_require__(11);
+	var Interaction = __webpack_require__(13);
+	var hat = __webpack_require__(12);
+	var rack = hat.rack();
+	
+	var series = function() {
+	    var args = [].slice.call(arguments,0);
+	    for (var i = 0;i < args.length; i++) {
+	        var source = args[i];
+	        var id = rack();
+	        source.id = id; 
+	        this.buffer[id] = document.createElement('canvas');
+	        this.bufferctx[id] = this.buffer[id].getContext('2d');
+	        this.sources.push(source);
+	    }
+	};
+	var to = function(el) {
+	    // wrap canvas in a div, set this.canvas and this.ctx
+	    this.wrappingDivId = "_".concat(rack()).slice(0,10);
+	    lib.setCanvas(el,this)
+	    this.sources.forEach(lib.setSource.bind(this));
+	    this.sources.forEach(function(source) {
+	        var that = this;
+	        source.on('data',function(data) {
+	            that.currentdata = data;
+	        });
+	    },this);
+	    // this.interaction refers to the element created during new Chart
+	    $(this.interaction).css('position','absolute');
+	    this.interaction.width = el.width; 
+	    this.interaction.height = el.height;
+	    $(el).before(this.interaction);
+	    // wrappingDivId happens during setcanvas (TODO : correct for ref transparency)
+	    var interaction = new Interaction({ctx:this.interactionctx,canvas:this.interaction,sources:this.sources,color:this.color,wrappingDivId:this.wrappingDivId});
+	    lib.setInteraction(interaction);
+	    $('#'.concat(this.wrappingDivId)).mousemove(interaction.mousemove);
+	    $('#'.concat(this.wrappingDivId)).mouseout(interaction.stop);
+	};
+	var legendfn = function(el) {
+	    this.legend_el = el; 
+	    legendfn.clear = lib.legendClear.bind({legend_el:this.legend_el})
+	};
+	var inspect = function() {
+	    return this.currentdata;
+	};
+	var chart = function() {
+	    this.buffer = {};
+	    this.bufferctx = {};
+	    this.currentdata = undefined;
+	    this.sources = [];
+	    this.to = to;
+	    this.series = series;
+	    this.legend = legendfn;
+	    this.inspect = inspect;
+	    this.legendobj = new legend;
+	    this.interaction = document.createElement('canvas');
+	    this.interactionctx = this.interaction.getContext('2d');
+	    this.bgcolor = undefined;
+	    this.color = {grid:'#c9d6de',bg:'#FFF',xlabel:'#000',xline:'#000',ylabel:'#000',yline:'#000',interactionline:'#000',line:undefined};
+	    this.rendermode = "line"; // linefill, line, bar 
+	    
+	    this.custom = {boundaries : {left:undefined,right:undefined}, cropFn : undefined};
+	    this.pause = false;
+	};
+	exports = module.exports = chart;
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var util = __webpack_require__(5);
+	var Hash = __webpack_require__(6);
+	var interaction = undefined;
+	
+	var config = {
+	    padding : {
+	        left : 10,
+	        top : 20,
+	        bottom : 30
+	    },
+	    axispadding : {
+	        left : 50,  // yaxis
+	        bottom : 20 // xaxis
+	    }
+	};
+	exports.displayConfig = function(params) {
+	    if (params !== undefined) {
+	        Hash(config).update(params);
+	    }
+	};
+	exports.setInteraction = function(obj) {
+	    interaction = obj;
+	    interaction.config = config;
+	}
+	exports.setCanvas = function(el,that) {
+	    that.canvas = el;
+	    // transfer inline style to wrapping div
+	    var style = $(el).attr('style');
+	    var wrappingDiv = document.createElement('div');
+	    $(wrappingDiv).attr('style',style);
+	    $(el).removeAttr('style');
+	
+	    wrappingDiv.id = that.wrappingDivId;
+	    wrappingDiv.height = that.canvas.height;
+	    $(that.canvas).wrap(wrappingDiv);
+	    that.ctx = el.getContext('2d');
+	    that.ctx.fillStyle = that.color.bg;
+	    that.ctx.fillRect(0,0,that.canvas.width,that.canvas.height);
+	};
+	exports.legendClear = function() {
+	    legend.clear(this.legend_el);
+	};
+	exports.setSource = function(source) {
+	    var id = source.id;    
+	    this.buffer[id].width = this.canvas.width;
+	    this.buffer[id].height = this.canvas.height;
+	    $(this.buffer[id]).css('position','absolute');
+	    $(this.canvas).before(this.buffer[id]);
+	    var onDataGraph = function(data,flags) {
+	        // timestamp
+	        data.date = new Date().getTime(); // actual timestamp
+	        if ((source.dataset === undefined) || (flags && flags.clear)) {
+	            source.dataset = [];
+	        }
+	
+	        source.dataset.push(data); 
+	        if (this.pause === true) 
+	            return
+	
+	        var windowsize = source.windowsize || data.windowsize || 10;
+	        var datatodisplay = (this.custom.cropFn) ? this.custom.cropFn(source.dataset,windowsize,this.custom.boundaries) : util.cropData(source.dataset,windowsize);
+	        var startx = util.getStartX(datatodisplay.length,windowsize,this.canvas.width); 
+	        var spacing = util.getSpacing(windowsize,this.canvas.width);
+	
+	        var yaxises = this.legendobj.update(datatodisplay,this.color.line);
+	        if (this.legend_el !== undefined) 
+	            this.legendobj.updateHTML({el:this.legend_el});
+	
+	        this.ctx.fillStyle = this.color.bg;
+	        this.ctx.fillRect(0,0,this.canvas.width,this.canvas.height);    
+	
+	        if (flags && flags.multiple && (flags.multiple === true)) {
+	            Hash(yaxises).forEach(function(axis,key) {
+	                axis.range = util.rangeY(datatodisplay,key); 
+	            });    
+	            util.drawYaxisMultiple(this.canvas,this.ctx,yaxises,config);
+	//            util.drawHorizontalGrid(this.canvas.width,this.canvas.height,this.ctx);
+	//            util.drawVerticalGrid(datatodisplay,this.ctx,spacing,startx,this.canvas.height);
+	            
+	            util.draw_multiple({startx:startx,datatodisplay:datatodisplay,spacing:spacing,buffer:this.buffer[id],bufferctx:this.bufferctx[id],yaxises:yaxises});
+	        } else {
+	            var range = util.filterDynamicRangeY(datatodisplay,yaxises);
+	//            util.drawHorizontalGrid(this.canvas.width,this.canvas.height,this.ctx);
+	            util.drawXaxis({datatodisplay:datatodisplay,ctx:this.ctx,spacing:spacing,startx:startx,height:this.canvas.height,width:this.canvas.width,config:config,gridcolor:this.color.grid,xlabel:this.color.xlabel,xline:this.color.xline,doVertGrid:true});
+	            util.draw({startx:startx,datatodisplay:datatodisplay,spacing:spacing,buffer:this.buffer[id],bufferctx:this.bufferctx[id],yaxises:yaxises,config:config,rendermode:source.rendermode || this.rendermode || "line", range:range});
+	            util.clip({ctx:this.bufferctx[id],config:config,height:this.buffer[id].height,type:'clear',clipcolor:this.color.bg});
+	            util.clip({ctx:this.ctx,config:config,height:this.canvas.height,type:'fill',clipcolor:this.color.bg});
+	            util.drawYaxis({canvas:this.canvas,ctx:this.ctx,range:range,config:config,yline:this.color.yline,ylabel:this.color.ylabel});
+	    
+	            source.displayData = util.getDisplayPoints({startx:startx,datatodisplay:datatodisplay,spacing:spacing,height:this.buffer[id].height,yaxises:yaxises,config:config,range:range});
+	        }
+	    
+	        if (interaction !== undefined) {
+	            interaction.redraw();
+	        }        
+	    };
+	    source.on('data',onDataGraph.bind(this));
+	};
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Hash = __webpack_require__(6);
+	var mr = __webpack_require__(8);
+	
+	var getSpacing = function(windowsize,canvaswidth) {
+	    return Math.floor(canvaswidth / (windowsize-1));
+	}
+	exports.getSpacing = getSpacing;
+	exports.getStartX = function(length,windowsize,canvaswidth) {
+	    var x = undefined;
+	    var spacing = getSpacing(windowsize,canvaswidth);
+	    if (length <= windowsize) {
+	        x = canvaswidth - (spacing * (length-1));
+	    } else 
+	        x = 0;
+	    return x;
+	};
+	exports.cropData = function(list,windowsize) {
+	    if (list.length < windowsize)
+	        return list
+	    else return list.slice(list.length - windowsize)
+	};
+	var colorToString = function(colorobj,alpha) {
+	    var color = colorobj.rgb();
+	    if (alpha !== undefined)
+	        return 'rgba('+color[0]+','+color[1]+','+color[2]+','+alpha+')';
+	    else 
+	        return 'rgb('+color[0]+','+color[1]+','+color[2]+')';
+	};
+	exports.colorToString = colorToString;
+	var drawDot = function(params) {
+	    params.ctx.beginPath();
+	    params.ctx.strokeStyle = colorToString(params.color);
+	    params.ctx.arc(params.x, params.y, params.radius, 0, Math.PI*2, false);
+	    params.ctx.stroke();
+	};
+	exports.drawDot = drawDot;
+	exports.drawLine = function(params) {
+	    params.ctx.beginPath();
+	    params.ctx.arc(params.x, params.y, params.radius, 0, Math.PI*2, false);
+	    params.ctx.strokeStyle = params.color;
+	    params.ctx.stroke();
+	};
+	exports.drawHorizontalGrid = function(width,height,ctx,color){
+	    var heightchunks = Math.floor(height / 10);
+	    for (var i = 0; i < heightchunks; i++) {
+	        ctx.strokeStyle = color;
+	        ctx.beginPath();
+	        ctx.moveTo(0,i*heightchunks);
+	        ctx.lineTo(width,i*heightchunks);
+	        ctx.stroke();
+	    }
+	}
+	var getDateString = function(ms) {
+	    var date = new Date(ms);
+	
+	    var pad = function(str) {
+	        if (str.length == 1) 
+	            return '0'.concat(str)
+	        if (str.length === 0) 
+	            return '00'
+	        else 
+	            return str
+	    };  
+	    var hours = date.getHours() % 12;
+	    if (hours === 0) 
+	        hours = '12';
+	    var seconds = pad(date.getSeconds());
+	    var minutes = pad(date.getMinutes());
+	    var meridian = date.getHours() >= 12 ? 'pm' : 'am';
+	    return hours +':'.concat(minutes) + ':'.concat(seconds) + meridian;
+	};
+	// if specialkey is defined, then we only look at members of list are specialkey
+	// i.e. list = [{foo:3,bar:9},{foo:4,bar:19}] rangeY(list,'foo'), gets range for just foo.
+	exports.rangeY = function(list,specialkey) {
+	    // % to top pad so the "peak" isn't at the top of the viewport, but we allow some extra space for better visualization
+	//    var padding = 0.10; // 0.10 = 10%;
+	    var padding = 0;
+	
+	    var minY = undefined;
+	    var maxY = undefined;
+	    for (var i = 0; i < list.length; i++) {
+	        Hash(list[i])
+	            .filter(function(val,key) { 
+	                if (specialkey !== undefined) 
+	                    return (key == specialkey) 
+	                return (key !== 'date')
+	             })
+	            .forEach(function(val,key) {
+	            if (minY == undefined) 
+	                minY = val;
+	            if (maxY == undefined)
+	                maxY = val;
+	            if (val < minY)
+	                minY = val;
+	            if (val > maxY)
+	                maxY = val;
+	        });
+	    }
+	    maxY = (1 + padding)*maxY;
+	    var spread = undefined;
+	    if ((minY!== undefined) && (maxY !== undefined)) {
+	        spread = maxY - minY;
+	    }
+	    // shift is the amount any value in the interval needs to be shifted by to fall with the interval [0,spread]
+	    var shift = undefined;
+	    if ((minY < 0) && (maxY >= 0)) {
+	        shift = Math.abs(minY);
+	    }
+	    if ((minY < 0) && (maxY < 0)) {
+	        shift = Math.abs(maxY) + Math.abs(minY);
+	    }
+	    if (minY > 0) {
+	        shift = -minY;
+	    }
+	    if (minY == 0) 
+	        shift = 0;
+	    return {min:minY,max:maxY,spread:spread,shift:shift}
+	};
+	var tick = function() {
+	    var dash = function(ctx,x,y,offset,value,linecolor,labelcolor) {
+	        ctx.fillStyle = labelcolor;
+	        ctx.strokeStyle = linecolor;
+	        ctx.beginPath()
+	        ctx.moveTo(x-offset,y)
+	        ctx.lineTo(x+offset,y);
+	        ctx.stroke();
+	        ctx.fillText(value.toFixed(2),x-40,y+3);
+	    }
+	    var large = function(ctx,x,y,value,linecolor,labelcolor) {
+	        dash(ctx,x,y,6,value,linecolor,labelcolor);
+	    }
+	    var small = function(ctx,x,y,value,linecolor,labelcolor) {
+	        dash(ctx,x,y,2,value,linecolor,labelcolor);
+	    }
+	    return {
+	        large: large,
+	        small: small
+	    }
+	};
+	exports.drawYaxis = function(params) {
+	    var canvas = params.canvas;
+	    var ctx = params.ctx;
+	    var range = params.range;
+	    var config = params.config;
+	    var yline = params.yline;
+	    var ylabel = params.ylabel;
+	    
+	    var availableHeight = canvas.height - config.padding.top - config.padding.bottom;
+	    ctx.strokeStyle = yline;
+	    ctx.beginPath();
+	    ctx.moveTo(config.axispadding.left,canvas.height-config.padding.bottom);
+	    ctx.lineTo(config.axispadding.left,config.padding.top);
+	    ctx.stroke();
+	    var majordivisions = 4;
+	    var step = range.spread / majordivisions;
+	    for (var i = 0; i <= majordivisions; i++) {
+	        var ticky = (availableHeight) - ((i / majordivisions) * availableHeight);
+	        ticky += config.padding.top;
+	        var value = range.min + (i*step);
+	        tick().large(ctx,config.axispadding.left,ticky,value,yline,ylabel);
+	    }
+	};
+	exports.drawYaxisMultiple = function(canvas,ctx,yaxises) { 
+	    var idx = 0;
+	    Hash(yaxises).forEach(function(axis,key) {
+	        var x = 5 + (35*idx);
+	        ctx.fillStyle = '#FFF';
+	        ctx.font = '10px sans-serif';
+	        ctx.fillText(axis.range.min.toFixed(2),x,canvas.height);
+	        ctx.fillText(axis.range.max.toFixed(2),x,10);
+	        ctx.strokeStyle = colorToString(axis.color);
+	        ctx.beginPath();
+	        ctx.moveTo(x,canvas.height);
+	        ctx.lineTo(x,0);
+	        ctx.stroke();
+	
+	        var majordivisions = 4;
+	        var step = axis.range.spread / majordivisions;
+	        for (var i = 0; i < majordivisions; i++) {
+	            var ticky = (canvas.height) - ((i / majordivisions) * canvas.height);
+	            var value = axis.range.min + (i*step);
+	            tick().large(ctx,x,ticky,value);
+	        }
+	        idx++;
+	    });
+	};
+	exports.clip = function(params) {
+	    var ctx = params.ctx;
+	    var height = params.height;
+	    var config = params.config;
+	    var clipcolor = params.clipcolor;
+	    if (params.type == 'clear') 
+	        ctx.clearRect(0,0,config.axispadding.left,height);
+	    if (params.type == 'fill') {
+	        ctx.fillStyle = clipcolor;
+	        ctx.fillRect(0,0,config.axispadding.left,height);
+	    }
+	};
+	exports.drawXaxis = function(params) {
+	    var datatodisplay = params.datatodisplay;
+	    var ctx = params.ctx;
+	    var spacing = params.spacing;
+	    var startx = params.startx;
+	    var height = params.height;
+	    var width = params.width;
+	    var config = params.config;
+	    var gridcolor = params.gridcolor;
+	    var xlabel = params.xlabel;
+	    var xline = params.xline;
+	    var doVertGrid = params.doVertGrid || false;
+	    // draw x-axis
+	    ctx.strokeStyle = params.xline;
+	    ctx.beginPath();
+	    ctx.moveTo(0,height - config.padding.bottom);
+	    ctx.lineTo(width,height - config.padding.bottom);
+	    ctx.stroke();
+	    // draw vertical grid
+	    if (doVertGrid === true) {
+	        ctx.fillStyle = xlabel;
+	        ctx.lineWidth = 1;
+	        for (var i = 0; i < datatodisplay.length;i++) {
+	            ctx.strokeStyle = gridcolor;
+	            ctx.beginPath();
+	            var x = startx+i*spacing;
+	            x += 0.5;
+	            ctx.moveTo(x,0);
+	            ctx.lineTo(x,height);
+	            ctx.stroke();
+	            var datestring = getDateString(datatodisplay[i].date);
+	            ctx.fillText(datestring,startx+i*spacing,height-5);
+	        }
+	    }
+	};
+	var lastsavedparams = {};
+	exports.getDisplayPoints = function(params) {
+	    var datatodisplay = params.datatodisplay;
+	    var startx = params.startx;
+	    var spacing = params.spacing;
+	    var height = params.height;
+	    var yaxises = params.yaxises;
+	    var range = params.range;
+	    var config = params.config;
+	    var displayPoints = {};
+	    Hash(yaxises)
+	        .filter(function(obj) {
+	            return (obj.display && obj.display === true)
+	        })
+	        .forEach(function(yaxis,key) {
+	            displayPoints[key] = {};
+	            displayPoints[key].yaxis = yaxis;
+	            displayPoints[key].list = [];
+	            datatodisplay.forEach(function(data,idx) {
+	                var yval = 0;
+	                var ratio = (data[key] + range.shift) / range.spread;
+	                var availableHeight = height - config.padding.top - config.padding.bottom;
+	                if (range.spread !== 0) {
+	                    yval = ratio * availableHeight;
+	                }
+	                var displayY = height - yval - config.padding.bottom;
+	                displayPoints[key].list.push({x:startx+(idx*spacing),y:displayY});
+	            },this);
+	        })
+	    ;
+	    return displayPoints;
+	};
+	// filters datatodisplay for dyanmic ranges based on legend select/deselect
+	exports.filterDynamicRangeY = function(datatodisplay,yaxises) {
+	    var filtered_list = []; // specifically for dynamic ranges
+	    for (var i = 0; i < datatodisplay.length; i++) {
+	        var item = Hash(datatodisplay[i])
+	        .filter(function(val,key) {
+	            return (key == 'date') || (yaxises[key].display == true)
+	        })
+	        .end;
+	        filtered_list.push(item);
+	    }
+	    var range = exports.rangeY(filtered_list);
+	    return range;
+	}
+	exports.draw = function (params) {
+	    lastsavedparams = params;
+	    var datatodisplay = params.datatodisplay;
+	    var startx = params.startx;
+	    var spacing = params.spacing;
+	    var buffer = params.buffer;
+	    var bufferctx = params.bufferctx;
+	    var yaxises = params.yaxises;
+	    var config = params.config;
+	    var rendermode = params.rendermode;
+	
+	    bufferctx.clearRect(0,0,buffer.width,buffer.height);    
+	    
+	    var range = params.range;
+	    Hash(yaxises)
+	        .filter(function(obj) {
+	            return (obj.display && obj.display === true)
+	        })
+	        .forEach(function(yaxis,key) {
+	            // draw lines
+	            bufferctx.strokeStyle = colorToString(yaxis.color);
+	            bufferctx.fillStyle = colorToString(mr.lighten(yaxis.color),0.5);
+	            datatodisplay.forEach(function(data,idx) {
+	                var yval = 0;
+	                var ratio = (data[key] + range.shift) / range.spread;
+	                var availableHeight = buffer.height - config.padding.top - config.padding.bottom;
+	                if (range.spread !== 0) {
+	                    yval = ratio * availableHeight;
+	                }
+	                var displayY = buffer.height - yval - config.padding.bottom;
+	
+	                if (rendermode == 'line' || rendermode == 'linefill') {
+	                    if (idx === 0) {
+	                        bufferctx.beginPath();
+	                        bufferctx.moveTo(startx+idx*spacing,displayY);
+	                    } else {
+	                        bufferctx.lineTo(startx+(idx*spacing),displayY);
+	                    }
+	                    if (idx == (datatodisplay.length -1)) {
+	                        if (rendermode == 'linefill') {
+	                            bufferctx.lineTo(startx+(idx*spacing),buffer.height-config.padding.bottom);
+	                            bufferctx.lineTo(startx,buffer.height-config.padding.bottom);
+	                            bufferctx.fill();
+	                        }
+	                        bufferctx.stroke();
+	                    }
+	                }
+	                if (rendermode == 'bar') {
+	                    bufferctx.beginPath();
+	                    var centerx = startx + idx*spacing;
+	                    bufferctx.moveTo(centerx-10,displayY);
+	                    bufferctx.lineTo(centerx+10,displayY);
+	                    bufferctx.lineTo(centerx+10,buffer.height-config.padding.bottom);
+	                    bufferctx.lineTo(centerx-10,buffer.height-config.padding.bottom);
+	                    bufferctx.lineTo(centerx-10,displayY);
+	                    bufferctx.stroke();
+	                    bufferctx.fill();
+	                }
+	            },this); 
+	            // draw dots
+	            datatodisplay.forEach(function(data,idx) {
+	                var yval = 0;
+	                var ratio = (data[key] + range.shift) / range.spread;
+	                var availableHeight = buffer.height - config.padding.top - config.padding.bottom;
+	                if (range.spread !== 0) {
+	                    yval = ratio * availableHeight;
+	                }
+	                var displayY = buffer.height - yval - config.padding.bottom;
+	                drawDot({
+	                    x:startx+(idx*spacing),
+	                    y:displayY, 
+	                    radius:3,
+	                    ctx:bufferctx,
+	                    color:yaxis.color
+	                });
+	            },this);
+	        })
+	    ;
+	};
+	exports.redraw = function(params) {
+	    lastsavedparams.yaxises = params.yaxises;
+	    exports.draw(lastsavedparams);
+	};
+	
+	
+	
+	// completely parallel implementation for multiple y-axises.
+	// diff log
+	// changed functions/variables to _multiple
+	// commented out portions of code are there to indicate the strikethrus from the single axis
+	
+	var lastsavedparams_multiple = {};
+	exports.draw_multiple = function (params) {
+	    lastsavedparams_multiple = params;
+	    var datatodisplay = params.datatodisplay;
+	    var startx = params.startx;
+	    var spacing = params.spacing;
+	    var buffer = params.buffer;
+	    var bufferctx = params.bufferctx;
+	    var yaxises = params.yaxises;
+	
+	    bufferctx.clearRect(0,0,buffer.width,buffer.height);    
+	
+	// commmented out because range now comes on the axis
+	//    var range = exports.rangeY(datatodisplay);
+	    Hash(yaxises)
+	        .filter(function(obj) {
+	            return (obj.display && obj.display === true)
+	        })
+	        .forEach(function(yaxis,key) {
+	            // draw lines
+	            bufferctx.strokeStyle = colorToString(yaxis.color);
+	            datatodisplay.forEach(function(data,idx) {
+	                var yval = 0;
+	//                var ratio = (data[key] + range.shift) / range.spread;
+	                var ratio = (data[key] + yaxis.range.shift) / yaxis.range.spread;
+	                if (yaxis.range.spread !== 0) {
+	                    yval = ratio * buffer.height;
+	                }
+	                if (idx === 0) {
+	                    bufferctx.beginPath();
+	                    bufferctx.moveTo(startx+idx*spacing,buffer.height - yval);
+	                } else {
+	                    bufferctx.lineTo(startx+(idx*spacing),buffer.height - yval);
+	                }
+	                if (idx == (datatodisplay.length -1)) {
+	                    bufferctx.stroke();
+	                }
+	            },this); 
+	            // draw dots
+	            datatodisplay.forEach(function(data,idx) {
+	                var yval = 0;
+	                if (yaxis.range.spread !== 0) {
+	                    yval = ((data[key] + yaxis.range.shift) / yaxis.range.spread) * buffer.height;
+	                }
+	                drawDot({
+	                    x:startx+(idx*spacing),
+	                    y:buffer.height - yval, 
+	                    radius:3,
+	                    ctx:bufferctx,
+	                    color:yaxis.color
+	                });
+	            },this);
+	        })
+	    ;
+	};
+	exports.redraw_multiple = function(params) {
+	    lastsavedparams_multiple.yaxises = params.yaxises;
+	    exports.draw_multiple(lastsavedparams_multiple);
+	};
+
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = Hash;
+	var Traverse = __webpack_require__(7);
+	
+	function Hash (hash, xs) {
+	    if (Array.isArray(hash) && Array.isArray(xs)) {
+	        var to = Math.min(hash.length, xs.length);
+	        var acc = {};
+	        for (var i = 0; i < to; i++) {
+	            acc[hash[i]] = xs[i];
+	        }
+	        return Hash(acc);
+	    }
+	    
+	    if (hash === undefined) return Hash({});
+	    
+	    var self = {
+	        map : function (f) {
+	            var acc = { __proto__ : hash.__proto__ };
+	            Object.keys(hash).forEach(function (key) {
+	                acc[key] = f.call(self, hash[key], key);
+	            });
+	            return Hash(acc);
+	        },
+	        forEach : function (f) {
+	            Object.keys(hash).forEach(function (key) {
+	                f.call(self, hash[key], key);
+	            });
+	            return self;
+	        },
+	        filter : function (f) {
+	            var acc = { __proto__ : hash.__proto__ };
+	            Object.keys(hash).forEach(function (key) {
+	                if (f.call(self, hash[key], key)) {
+	                    acc[key] = hash[key];
+	                }
+	            });
+	            return Hash(acc);
+	        },
+	        detect : function (f) {
+	            for (var key in hash) {
+	                if (f.call(self, hash[key], key)) {
+	                    return hash[key];
+	                }
+	            }
+	            return undefined;
+	        },
+	        reduce : function (f, acc) {
+	            var keys = Object.keys(hash);
+	            if (acc === undefined) acc = keys.shift();
+	            keys.forEach(function (key) {
+	                acc = f.call(self, acc, hash[key], key);
+	            });
+	            return acc;
+	        },
+	        some : function (f) {
+	            for (var key in hash) {
+	                if (f.call(self, hash[key], key)) return true;
+	            }
+	            return false;
+	        },
+	        update : function (obj) {
+	            if (arguments.length > 1) {
+	                self.updateAll([].slice.call(arguments));
+	            }
+	            else {
+	                Object.keys(obj).forEach(function (key) {
+	                    hash[key] = obj[key];
+	                });
+	            }
+	            return self;
+	        },
+	        updateAll : function (xs) {
+	            xs.filter(Boolean).forEach(function (x) {
+	                self.update(x);
+	            });
+	            return self;
+	        },
+	        merge : function (obj) {
+	            if (arguments.length > 1) {
+	                return self.copy.updateAll([].slice.call(arguments));
+	            }
+	            else {
+	                return self.copy.update(obj);
+	            }
+	        },
+	        mergeAll : function (xs) {
+	            return self.copy.updateAll(xs);
+	        },
+	        has : function (key) { // only operates on enumerables
+	            return Array.isArray(key)
+	                ? key.every(function (k) { return self.has(k) })
+	                : self.keys.indexOf(key.toString()) >= 0;
+	        },
+	        valuesAt : function (keys) {
+	            return Array.isArray(keys)
+	                ? keys.map(function (key) { return hash[key] })
+	                : hash[keys]
+	            ;
+	        },
+	        tap : function (f) {
+	            f.call(self, hash);
+	            return self;
+	        },
+	        extract : function (keys) {
+	            var acc = {};
+	            keys.forEach(function (key) {
+	                acc[key] = hash[key];
+	            });
+	            return Hash(acc);
+	        },
+	        exclude : function (keys) {
+	            return self.filter(function (_, key) {
+	                return keys.indexOf(key) < 0
+	            });
+	        },
+	        end : hash,
+	        items : hash
+	    };
+	    
+	    var props = {
+	        keys : function () { return Object.keys(hash) },
+	        values : function () {
+	            return Object.keys(hash).map(function (key) { return hash[key] });
+	        },
+	        compact : function () {
+	            return self.filter(function (x) { return x !== undefined });
+	        },
+	        clone : function () { return Hash(Hash.clone(hash)) },
+	        copy : function () { return Hash(Hash.copy(hash)) },
+	        length : function () { return Object.keys(hash).length },
+	        size : function () { return self.length }
+	    };
+	    
+	    if (Object.defineProperty) {
+	        // es5-shim has an Object.defineProperty but it throws for getters
+	        try {
+	            for (var key in props) {
+	                Object.defineProperty(self, key, { get : props[key] });
+	            }
+	        }
+	        catch (err) {
+	            for (var key in props) {
+	                if (key !== 'clone' && key !== 'copy' && key !== 'compact') {
+	                    // ^ those keys use Hash() so can't call them without
+	                    // a stack overflow
+	                    self[key] = props[key]();
+	                }
+	            }
+	        }
+	    }
+	    else if (self.__defineGetter__) {
+	        for (var key in props) {
+	            self.__defineGetter__(key, props[key]);
+	        }
+	    }
+	    else {
+	        // non-lazy version for browsers that suck >_<
+	        for (var key in props) {
+	            self[key] = props[key]();
+	        }
+	    }
+	    
+	    return self;
+	};
+	
+	// deep copy
+	Hash.clone = function (ref) {
+	    return Traverse.clone(ref);
+	};
+	
+	// shallow copy
+	Hash.copy = function (ref) {
+	    var hash = { __proto__ : ref.__proto__ };
+	    Object.keys(ref).forEach(function (key) {
+	        hash[key] = ref[key];
+	    });
+	    return hash;
+	};
+	
+	Hash.map = function (ref, f) {
+	    return Hash(ref).map(f).items;
+	};
+	
+	Hash.forEach = function (ref, f) {
+	    Hash(ref).forEach(f);
+	};
+	
+	Hash.filter = function (ref, f) {
+	    return Hash(ref).filter(f).items;
+	};
+	
+	Hash.detect = function (ref, f) {
+	    return Hash(ref).detect(f);
+	};
+	
+	Hash.reduce = function (ref, f, acc) {
+	    return Hash(ref).reduce(f, acc);
+	};
+	
+	Hash.some = function (ref, f) {
+	    return Hash(ref).some(f);
+	};
+	
+	Hash.update = function (a /*, b, c, ... */) {
+	    var args = Array.prototype.slice.call(arguments, 1);
+	    var hash = Hash(a);
+	    return hash.update.apply(hash, args).items;
+	};
+	
+	Hash.merge = function (a /*, b, c, ... */) {
+	    var args = Array.prototype.slice.call(arguments, 1);
+	    var hash = Hash(a);
+	    return hash.merge.apply(hash, args).items;
+	};
+	
+	Hash.has = function (ref, key) {
+	    return Hash(ref).has(key);
+	};
+	
+	Hash.valuesAt = function (ref, keys) {
+	    return Hash(ref).valuesAt(keys);
+	};
+	
+	Hash.tap = function (ref, f) {
+	    return Hash(ref).tap(f).items;
+	};
+	
+	Hash.extract = function (ref, keys) {
+	    return Hash(ref).extract(keys).items;
+	};
+	
+	Hash.exclude = function (ref, keys) {
+	    return Hash(ref).exclude(keys).items;
+	};
+	
+	Hash.concat = function (xs) {
+	    var hash = Hash({});
+	    xs.forEach(function (x) { hash.update(x) });
+	    return hash.items;
+	};
+	
+	Hash.zip = function (xs, ys) {
+	    return Hash(xs, ys).items;
+	};
+	
+	// .length is already defined for function prototypes
+	Hash.size = function (ref) {
+	    return Hash(ref).size;
+	};
+	
+	Hash.compact = function (ref) {
+	    return Hash(ref).compact.items;
+	};
+
+
+/***/ },
+/* 7 */
+/***/ function(module, exports) {
+
+	var traverse = module.exports = function (obj) {
+	    return new Traverse(obj);
+	};
+	
+	function Traverse (obj) {
+	    this.value = obj;
+	}
+	
+	Traverse.prototype.get = function (ps) {
+	    var node = this.value;
+	    for (var i = 0; i < ps.length; i ++) {
+	        var key = ps[i];
+	        if (!node || !hasOwnProperty.call(node, key)) {
+	            node = undefined;
+	            break;
+	        }
+	        node = node[key];
+	    }
+	    return node;
+	};
+	
+	Traverse.prototype.has = function (ps) {
+	    var node = this.value;
+	    for (var i = 0; i < ps.length; i ++) {
+	        var key = ps[i];
+	        if (!node || !hasOwnProperty.call(node, key)) {
+	            return false;
+	        }
+	        node = node[key];
+	    }
+	    return true;
+	};
+	
+	Traverse.prototype.set = function (ps, value) {
+	    var node = this.value;
+	    for (var i = 0; i < ps.length - 1; i ++) {
+	        var key = ps[i];
+	        if (!hasOwnProperty.call(node, key)) node[key] = {};
+	        node = node[key];
+	    }
+	    node[ps[i]] = value;
+	    return value;
+	};
+	
+	Traverse.prototype.map = function (cb) {
+	    return walk(this.value, cb, true);
+	};
+	
+	Traverse.prototype.forEach = function (cb) {
+	    this.value = walk(this.value, cb, false);
+	    return this.value;
+	};
+	
+	Traverse.prototype.reduce = function (cb, init) {
+	    var skip = arguments.length === 1;
+	    var acc = skip ? this.value : init;
+	    this.forEach(function (x) {
+	        if (!this.isRoot || !skip) {
+	            acc = cb.call(this, acc, x);
+	        }
+	    });
+	    return acc;
+	};
+	
+	Traverse.prototype.paths = function () {
+	    var acc = [];
+	    this.forEach(function (x) {
+	        acc.push(this.path); 
+	    });
+	    return acc;
+	};
+	
+	Traverse.prototype.nodes = function () {
+	    var acc = [];
+	    this.forEach(function (x) {
+	        acc.push(this.node);
+	    });
+	    return acc;
+	};
+	
+	Traverse.prototype.clone = function () {
+	    var parents = [], nodes = [];
+	    
+	    return (function clone (src) {
+	        for (var i = 0; i < parents.length; i++) {
+	            if (parents[i] === src) {
+	                return nodes[i];
+	            }
+	        }
+	        
+	        if (typeof src === 'object' && src !== null) {
+	            var dst = copy(src);
+	            
+	            parents.push(src);
+	            nodes.push(dst);
+	            
+	            forEach(objectKeys(src), function (key) {
+	                dst[key] = clone(src[key]);
+	            });
+	            
+	            parents.pop();
+	            nodes.pop();
+	            return dst;
+	        }
+	        else {
+	            return src;
+	        }
+	    })(this.value);
+	};
+	
+	function walk (root, cb, immutable) {
+	    var path = [];
+	    var parents = [];
+	    var alive = true;
+	    
+	    return (function walker (node_) {
+	        var node = immutable ? copy(node_) : node_;
+	        var modifiers = {};
+	        
+	        var keepGoing = true;
+	        
+	        var state = {
+	            node : node,
+	            node_ : node_,
+	            path : [].concat(path),
+	            parent : parents[parents.length - 1],
+	            parents : parents,
+	            key : path.slice(-1)[0],
+	            isRoot : path.length === 0,
+	            level : path.length,
+	            circular : null,
+	            update : function (x, stopHere) {
+	                if (!state.isRoot) {
+	                    state.parent.node[state.key] = x;
+	                }
+	                state.node = x;
+	                if (stopHere) keepGoing = false;
+	            },
+	            'delete' : function (stopHere) {
+	                delete state.parent.node[state.key];
+	                if (stopHere) keepGoing = false;
+	            },
+	            remove : function (stopHere) {
+	                if (isArray(state.parent.node)) {
+	                    state.parent.node.splice(state.key, 1);
+	                }
+	                else {
+	                    delete state.parent.node[state.key];
+	                }
+	                if (stopHere) keepGoing = false;
+	            },
+	            keys : null,
+	            before : function (f) { modifiers.before = f },
+	            after : function (f) { modifiers.after = f },
+	            pre : function (f) { modifiers.pre = f },
+	            post : function (f) { modifiers.post = f },
+	            stop : function () { alive = false },
+	            block : function () { keepGoing = false }
+	        };
+	        
+	        if (!alive) return state;
+	        
+	        function updateState() {
+	            if (typeof state.node === 'object' && state.node !== null) {
+	                if (!state.keys || state.node_ !== state.node) {
+	                    state.keys = objectKeys(state.node)
+	                }
+	                
+	                state.isLeaf = state.keys.length == 0;
+	                
+	                for (var i = 0; i < parents.length; i++) {
+	                    if (parents[i].node_ === node_) {
+	                        state.circular = parents[i];
+	                        break;
+	                    }
+	                }
+	            }
+	            else {
+	                state.isLeaf = true;
+	                state.keys = null;
+	            }
+	            
+	            state.notLeaf = !state.isLeaf;
+	            state.notRoot = !state.isRoot;
+	        }
+	        
+	        updateState();
+	        
+	        // use return values to update if defined
+	        var ret = cb.call(state, state.node);
+	        if (ret !== undefined && state.update) state.update(ret);
+	        
+	        if (modifiers.before) modifiers.before.call(state, state.node);
+	        
+	        if (!keepGoing) return state;
+	        
+	        if (typeof state.node == 'object'
+	        && state.node !== null && !state.circular) {
+	            parents.push(state);
+	            
+	            updateState();
+	            
+	            forEach(state.keys, function (key, i) {
+	                path.push(key);
+	                
+	                if (modifiers.pre) modifiers.pre.call(state, state.node[key], key);
+	                
+	                var child = walker(state.node[key]);
+	                if (immutable && hasOwnProperty.call(state.node, key)) {
+	                    state.node[key] = child.node;
+	                }
+	                
+	                child.isLast = i == state.keys.length - 1;
+	                child.isFirst = i == 0;
+	                
+	                if (modifiers.post) modifiers.post.call(state, child);
+	                
+	                path.pop();
+	            });
+	            parents.pop();
+	        }
+	        
+	        if (modifiers.after) modifiers.after.call(state, state.node);
+	        
+	        return state;
+	    })(root).node;
+	}
+	
+	function copy (src) {
+	    if (typeof src === 'object' && src !== null) {
+	        var dst;
+	        
+	        if (isArray(src)) {
+	            dst = [];
+	        }
+	        else if (isDate(src)) {
+	            dst = new Date(src.getTime ? src.getTime() : src);
+	        }
+	        else if (isRegExp(src)) {
+	            dst = new RegExp(src);
+	        }
+	        else if (isError(src)) {
+	            dst = { message: src.message };
+	        }
+	        else if (isBoolean(src)) {
+	            dst = new Boolean(src);
+	        }
+	        else if (isNumber(src)) {
+	            dst = new Number(src);
+	        }
+	        else if (isString(src)) {
+	            dst = new String(src);
+	        }
+	        else if (Object.create && Object.getPrototypeOf) {
+	            dst = Object.create(Object.getPrototypeOf(src));
+	        }
+	        else if (src.constructor === Object) {
+	            dst = {};
+	        }
+	        else {
+	            var proto =
+	                (src.constructor && src.constructor.prototype)
+	                || src.__proto__
+	                || {}
+	            ;
+	            var T = function () {};
+	            T.prototype = proto;
+	            dst = new T;
+	        }
+	        
+	        forEach(objectKeys(src), function (key) {
+	            dst[key] = src[key];
+	        });
+	        return dst;
+	    }
+	    else return src;
+	}
+	
+	var objectKeys = Object.keys || function keys (obj) {
+	    var res = [];
+	    for (var key in obj) res.push(key)
+	    return res;
+	};
+	
+	function toS (obj) { return Object.prototype.toString.call(obj) }
+	function isDate (obj) { return toS(obj) === '[object Date]' }
+	function isRegExp (obj) { return toS(obj) === '[object RegExp]' }
+	function isError (obj) { return toS(obj) === '[object Error]' }
+	function isBoolean (obj) { return toS(obj) === '[object Boolean]' }
+	function isNumber (obj) { return toS(obj) === '[object Number]' }
+	function isString (obj) { return toS(obj) === '[object String]' }
+	
+	var isArray = Array.isArray || function isArray (xs) {
+	    return Object.prototype.toString.call(xs) === '[object Array]';
+	};
+	
+	var forEach = function (xs, fn) {
+	    if (xs.forEach) return xs.forEach(fn)
+	    else for (var i = 0; i < xs.length; i++) {
+	        fn(xs[i], i, xs);
+	    }
+	};
+	
+	forEach(objectKeys(Traverse.prototype), function (key) {
+	    traverse[key] = function (obj) {
+	        var args = [].slice.call(arguments, 1);
+	        var t = new Traverse(obj);
+	        return t[key].apply(t, args);
+	    };
+	});
+	
+	var hasOwnProperty = Object.hasOwnProperty || function (obj, key) {
+	    return key in obj;
+	};
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var convert = __webpack_require__(9);
+	
+	var mr = module.exports = function () {
+	    var used = [];
+	    var num = 0;
+	    var last = [];
+	    
+	    return function next () {
+	        var angle;
+	        if (num < 6) {
+	            angle = 60 * num;
+	            used.push(angle);
+	            if (num === 5) used.push(360);
+	        }
+	        else {
+	            var dxs = used.slice(1).map(function (u, i) {
+	                return (u - used[i]) * last.every(function (x) {
+	                    return Math.abs(u - x) > 60
+	                        && Math.abs((u - 360) - x) > 60
+	                    ;
+	                });
+	            });
+	            var ix = dxs.indexOf(Math.max.apply(null, dxs));
+	            
+	            var x = used[ix];
+	            var y = used[ix+1];
+	            angle = Math.floor(x + (y - x) / 2);
+	            used.splice(ix + 1, 0, angle);
+	        }
+	        
+	        num ++;
+	        last = [angle].concat(last).slice(0,4);
+	        
+	        return mr.fromHSL(
+	            angle,
+	            100 - Math.min(80, 1 / Math.sqrt(1 + Math.floor(num / 12)))
+	                * Math.random(),
+	            50 + Math.min(80, (Math.floor(num / 6) * 20))
+	                * (Math.random() - 0.5)
+	        );
+	    };
+	};
+	
+	mr.fromHSL = function (h, s, l) {
+	    if (!s) s = 100;
+	    if (!l) l = 50;
+	    var hsl = [ h, s, l ];
+	    
+	    return {
+	        rgb : function () {
+	            return convert.hsl2rgb(hsl);
+	        },
+	        hsl : function () {
+	            return hsl;
+	        },
+	        hsv : function () {
+	            return convert.hsl2hsv(hsl)
+	        },
+	        cmyk : function () {
+	            return convert.hsl2cmyk(hsl)
+	        },
+	        xyz : function () {
+	            return convert.hsl2xyz(hsl)
+	        }
+	    };
+	};
+	
+	mr.take = function (n) {
+	    if (n <= 0) return [];
+	    
+	    var res = [];
+	    var next = mr();
+	    
+	    for (var i = 0; i < n; i++) {
+	        res.push(next());
+	    }
+	    
+	    return res;
+	};
+	
+	mr.lighten = function(color,by) {
+	    var hsv = color.hsv().map(function(val,idx) {
+	        return (idx == 1) ? (by || 0.2) * val : val
+	    });
+	    return mr.fromHSL.apply(undefined,convert.hsv2hsl(hsv));
+	};
+	
+	mr.rgbhexToColorObj = function(color) {
+	    var cutHex = function (h) {return (h.charAt(0)=="#") ? h.substring(1,7):h}
+	    var hexToR = function (h) {return parseInt((cutHex(h)).substring(0,2),16)}
+	    var hexToG = function (h) {return parseInt((cutHex(h)).substring(2,4),16)}
+	    var hexToB = function (h) {return parseInt((cutHex(h)).substring(4,6),16)}
+	   
+	    var rgb = [hexToR(color),hexToG(color),hexToB(color)]; 
+	    return mr.fromHSL.apply(undefined,convert.rgb2hsl(rgb))
+	}
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var conversions = __webpack_require__(10);
+	
+	var exports = {};
+	module.exports = exports;
+	
+	for (var func in conversions) {
+	  // export rgb2hslRaw
+	  exports[func + "Raw"] =  (function(func) {
+	    // accept array or plain args
+	    return function(arg) {
+	      if (typeof arg == "number")
+	        arg = Array.prototype.slice.call(arguments);
+	      return conversions[func](arg);
+	    }
+	  })(func);
+	
+	  var pair = /(\w+)2(\w+)/.exec(func),
+	      from = pair[1],
+	      to = pair[2];
+	
+	  // export rgb2hsl and ["rgb"]["hsl"]
+	  exports[from] = exports[from] || {};
+	
+	  exports[from][to] = exports[func] = (function(func) { 
+	    return function(arg) {
+	      if (typeof arg == "number")
+	        arg = Array.prototype.slice.call(arguments);
+	      
+	      var val = conversions[func](arg);
+	      if (typeof val == "string" || val === undefined)
+	        return val; // keyword
+	
+	      for (var i = 0; i < val.length; i++)
+	        val[i] = Math.round(val[i]);
+	      return val;
+	    }
+	  })(func);
+	}
+
+/***/ },
+/* 10 */
+/***/ function(module, exports) {
+
+	/* MIT license */
+	
+	module.exports = {
+	  rgb2hsl: rgb2hsl,
+	  rgb2hsv: rgb2hsv,
+	  rgb2cmyk: rgb2cmyk,
+	  rgb2keyword: rgb2keyword,
+	  rgb2xyz: rgb2xyz,
+	  rgb2lab: rgb2lab,
+	
+	  hsl2rgb: hsl2rgb,
+	  hsl2hsv: hsl2hsv,
+	  hsl2cmyk: hsl2cmyk,
+	  hsl2keyword: hsl2keyword,
+	
+	  hsv2rgb: hsv2rgb,
+	  hsv2hsl: hsv2hsl,
+	  hsv2cmyk: hsv2cmyk,
+	  hsv2keyword: hsv2keyword,
+	
+	  cmyk2rgb: cmyk2rgb,
+	  cmyk2hsl: cmyk2hsl,
+	  cmyk2hsv: cmyk2hsv,
+	  cmyk2keyword: cmyk2keyword,
+	  
+	  keyword2rgb: keyword2rgb,
+	  keyword2hsl: keyword2hsl,
+	  keyword2hsv: keyword2hsv,
+	  keyword2cmyk: keyword2cmyk,
+	  
+	  xyz2rgb: xyz2rgb,
+	}
+	
+	
+	function rgb2hsl(rgb) {
+	  var r = rgb[0]/255,
+	      g = rgb[1]/255,
+	      b = rgb[2]/255,
+	      min = Math.min(r, g, b),
+	      max = Math.max(r, g, b),
+	      delta = max - min,
+	      h, s, l;
+	
+	  if (max == min)
+	    h = 0;
+	  else if (r == max) 
+	    h = (g - b) / delta; 
+	  else if (g == max)
+	    h = 2 + (b - r) / delta; 
+	  else if (b == max)
+	    h = 4 + (r - g)/ delta;
+	
+	  h = Math.min(h * 60, 360);
+	
+	  if (h < 0)
+	    h += 360;
+	
+	  l = (min + max) / 2;
+	
+	  if (max == min)
+	    s = 0;
+	  else if (l <= 0.5)
+	    s = delta / (max + min);
+	  else
+	    s = delta / (2 - max - min);
+	
+	  return [h, s * 100, l * 100];
+	}
+	
+	function rgb2hsv(rgb) {
+	  var r = rgb[0],
+	      g = rgb[1],
+	      b = rgb[2],
+	      min = Math.min(r, g, b),
+	      max = Math.max(r, g, b),
+	      delta = max - min,
+	      h, s, v;
+	
+	  if (max == 0)
+	    s = 0;
+	  else
+	    s = (delta/max * 1000)/10;
+	
+	  if (max == min)
+	    h = 0;
+	  else if (r == max) 
+	    h = (g - b) / delta; 
+	  else if (g == max)
+	    h = 2 + (b - r) / delta; 
+	  else if (b == max)
+	    h = 4 + (r - g) / delta;
+	
+	  h = Math.min(h * 60, 360);
+	
+	  if (h < 0) 
+	    h += 360;
+	
+	  v = ((max / 255) * 1000) / 10;
+	
+	  return [h, s, v];
+	}
+	
+	function rgb2cmyk(rgb) {
+	  var r = rgb[0] / 255,
+	      g = rgb[1] / 255,
+	      b = rgb[2] / 255,
+	      c, m, y, k;
+	      
+	  k = Math.min(1 - r, 1 - g, 1 - b);
+	  c = (1 - r - k) / (1 - k);
+	  m = (1 - g - k) / (1 - k);
+	  y = (1 - b - k) / (1 - k);
+	  return [c * 100, m * 100, y * 100, k * 100];
+	}
+	
+	function rgb2keyword(rgb) {
+	  return reverseKeywords[JSON.stringify(rgb)];
+	}
+	
+	function rgb2xyz(rgb) {
+	  var r = rgb[0] / 255,
+	      g = rgb[1] / 255,
+	      b = rgb[2] / 255;
+	
+	  // assume sRGB
+	  r = r > 0.04045 ? Math.pow(((r + 0.055) / 1.055), 2.4) : (r / 12.92);
+	  g = g > 0.04045 ? Math.pow(((g + 0.055) / 1.055), 2.4) : (g / 12.92);
+	  b = b > 0.04045 ? Math.pow(((b + 0.055) / 1.055), 2.4) : (b / 12.92);
+	  
+	  var x = (r * 0.4124) + (g * 0.3576) + (b * 0.1805);
+	  var y = (r * 0.2126) + (g * 0.7152) + (b * 0.0722);
+	  var z = (r * 0.0193) + (g * 0.1192) + (b * 0.9505);
+	
+	  return [x * 100, y *100, z * 100];
+	}
+	
+	function rgb2lab(rgb) {
+	  var xyz = rgb2xyz(rgb),
+	        x = xyz[0],
+	        y = xyz[1],
+	        z = xyz[2],
+	        l, a, b;
+	
+	  x /= 95.047;
+	  y /= 100;
+	  z /= 108.883;
+	
+	  x = x > 0.008856 ? Math.pow(x, 1/3) : (7.787 * x) + (16 / 116);
+	  y = y > 0.008856 ? Math.pow(y, 1/3) : (7.787 * y) + (16 / 116);
+	  z = z > 0.008856 ? Math.pow(z, 1/3) : (7.787 * z) + (16 / 116);
+	
+	  l = (116 * y) - 16;
+	  a = 500 * (x - y);
+	  b = 200 * (y - z);
+	  
+	  return [l, a, b];
+	}
+	
+	
+	function hsl2rgb(hsl) {
+	  var h = hsl[0] / 360,
+	      s = hsl[1] / 100,
+	      l = hsl[2] / 100,
+	      t1, t2, t3, rgb, val;
+	
+	  if (s == 0) {
+	    val = l * 255;
+	    return [val, val, val];
+	  }
+	
+	  if (l < 0.5)
+	    t2 = l * (1 + s);
+	  else
+	    t2 = l + s - l * s;
+	  t1 = 2 * l - t2;
+	
+	  rgb = [0, 0, 0];
+	  for (var i = 0; i < 3; i++) {
+	    t3 = h + 1 / 3 * - (i - 1);
+	    t3 < 0 && t3++;
+	    t3 > 1 && t3--;
+	
+	    if (6 * t3 < 1)
+	      val = t1 + (t2 - t1) * 6 * t3;
+	    else if (2 * t3 < 1)
+	      val = t2;
+	    else if (3 * t3 < 2)
+	      val = t1 + (t2 - t1) * (2 / 3 - t3) * 6;
+	    else
+	      val = t1;
+	
+	    rgb[i] = val * 255;
+	  }
+	  
+	  return rgb;
+	}
+	
+	function hsl2hsv(hsl) {
+	  var h = hsl[0],
+	      s = hsl[1] / 100,
+	      l = hsl[2] / 100,
+	      sv, v;
+	  l *= 2;
+	  s *= (l <= 1) ? l : 2 - l;
+	  v = (l + s) / 2;
+	  sv = (2 * s) / (l + s);
+	  return [h, s * 100, v * 100];
+	}
+	
+	function hsl2cmyk(args) {
+	  return rgb2cmyk(hsl2rgb(args));
+	}
+	
+	function hsl2keyword(args) {
+	  return rgb2keyword(hsl2rgb(args));
+	}
+	
+	
+	function hsv2rgb(hsv) {
+	  var h = hsv[0] / 60,
+	      s = hsv[1] / 100,
+	      v = hsv[2] / 100,
+	      hi = Math.floor(h) % 6;
+	
+	  var f = h - Math.floor(h),
+	      p = 255 * v * (1 - s),
+	      q = 255 * v * (1 - (s * f)),
+	      t = 255 * v * (1 - (s * (1 - f))),
+	      v = 255 * v;
+	
+	  switch(hi) {
+	    case 0:
+	      return [v, t, p];
+	    case 1:
+	      return [q, v, p];
+	    case 2:
+	      return [p, v, t];
+	    case 3:
+	      return [p, q, v];
+	    case 4:
+	      return [t, p, v];
+	    case 5:
+	      return [v, p, q];
+	  }
+	}
+	
+	function hsv2hsl(hsv) {
+	  var h = hsv[0],
+	      s = hsv[1] / 100,
+	      v = hsv[2] / 100,
+	      sl, l;
+	
+	  l = (2 - s) * v;  
+	  sl = s * v;
+	  sl /= (l <= 1) ? l : 2 - l;
+	  l /= 2;
+	  return [h, sl * 100, l * 100];
+	}
+	
+	function hsv2cmyk(args) {
+	  return rgb2cmyk(hsv2rgb(args));
+	}
+	
+	function hsv2keyword(args) {
+	  return rgb2keyword(hsv2rgb(args));
+	}
+	
+	function cmyk2rgb(cmyk) {
+	  var c = cmyk[0] / 100,
+	      m = cmyk[1] / 100,
+	      y = cmyk[2] / 100,
+	      k = cmyk[3] / 100,
+	      r, g, b;
+	
+	  r = 1 - Math.min(1, c * (1 - k) + k);
+	  g = 1 - Math.min(1, m * (1 - k) + k);
+	  b = 1 - Math.min(1, y * (1 - k) + k);
+	  return [r * 255, g * 255, b * 255];
+	}
+	
+	function cmyk2hsl(args) {
+	  return rgb2hsl(cmyk2rgb(args));
+	}
+	
+	function cmyk2hsv(args) {
+	  return rgb2hsv(cmyk2rgb(args));
+	}
+	
+	function cmyk2keyword(args) {
+	  return rgb2keyword(cmyk2rgb(args));
+	}
+	
+	
+	function xyz2rgb(xyz) {
+	  var x = xyz[0] / 100,
+	      y = xyz[1] / 100,
+	      z = xyz[2] / 100,
+	      r, g, b;
+	
+	  r = (x * 3.2406) + (y * -1.5372) + (z * -0.4986);
+	  g = (x * -0.9689) + (y * 1.8758) + (z * 0.0415);
+	  b = (x * 0.0557) + (y * -0.2040) + (z * 1.0570);
+	
+	  // assume sRGB
+	  r = r > 0.0031308 ? ((1.055 * Math.pow(r, 1.0 / 2.4)) - 0.055)
+	    : r = (r * 12.92);
+	
+	  g = g > 0.0031308 ? ((1.055 * Math.pow(g, 1.0 / 2.4)) - 0.055)
+	    : g = (g * 12.92);
+	        
+	  b = b > 0.0031308 ? ((1.055 * Math.pow(b, 1.0 / 2.4)) - 0.055)
+	    : b = (b * 12.92);
+	
+	  r = (r < 0) ? 0 : r;
+	  g = (g < 0) ? 0 : g;
+	  b = (b < 0) ? 0 : b;
+	
+	  return [r * 255, g * 255, b * 255];
+	}
+	
+	
+	function keyword2rgb(keyword) {
+	  return cssKeywords[keyword];
+	}
+	
+	function keyword2hsl(args) {
+	  return rgb2hsl(keyword2rgb(args));
+	}
+	
+	function keyword2hsv(args) {
+	  return rgb2hsv(keyword2rgb(args));
+	}
+	
+	function keyword2cmyk(args) {
+	  return rgb2cmyk(keyword2rgb(args));
+	}
+	
+	var cssKeywords = {
+	  aliceblue:  [240,248,255],
+	  antiquewhite: [250,235,215],
+	  aqua: [0,255,255],
+	  aquamarine: [127,255,212],
+	  azure:  [240,255,255],
+	  beige:  [245,245,220],
+	  bisque: [255,228,196],
+	  black:  [0,0,0],
+	  blanchedalmond: [255,235,205],
+	  blue: [0,0,255],
+	  blueviolet: [138,43,226],
+	  brown:  [165,42,42],
+	  burlywood:  [222,184,135],
+	  cadetblue:  [95,158,160],
+	  chartreuse: [127,255,0],
+	  chocolate:  [210,105,30],
+	  coral:  [255,127,80],
+	  cornflowerblue: [100,149,237],
+	  cornsilk: [255,248,220],
+	  crimson:  [220,20,60],
+	  cyan: [0,255,255],
+	  darkblue: [0,0,139],
+	  darkcyan: [0,139,139],
+	  darkgoldenrod:  [184,134,11],
+	  darkgray: [169,169,169],
+	  darkgreen:  [0,100,0],
+	  darkgrey: [169,169,169],
+	  darkkhaki:  [189,183,107],
+	  darkmagenta:  [139,0,139],
+	  darkolivegreen: [85,107,47],
+	  darkorange: [255,140,0],
+	  darkorchid: [153,50,204],
+	  darkred:  [139,0,0],
+	  darksalmon: [233,150,122],
+	  darkseagreen: [143,188,143],
+	  darkslateblue:  [72,61,139],
+	  darkslategray:  [47,79,79],
+	  darkslategrey:  [47,79,79],
+	  darkturquoise:  [0,206,209],
+	  darkviolet: [148,0,211],
+	  deeppink: [255,20,147],
+	  deepskyblue:  [0,191,255],
+	  dimgray:  [105,105,105],
+	  dimgrey:  [105,105,105],
+	  dodgerblue: [30,144,255],
+	  firebrick:  [178,34,34],
+	  floralwhite:  [255,250,240],
+	  forestgreen:  [34,139,34],
+	  fuchsia:  [255,0,255],
+	  gainsboro:  [220,220,220],
+	  ghostwhite: [248,248,255],
+	  gold: [255,215,0],
+	  goldenrod:  [218,165,32],
+	  gray: [128,128,128],
+	  green:  [0,128,0],
+	  greenyellow:  [173,255,47],
+	  grey: [128,128,128],
+	  honeydew: [240,255,240],
+	  hotpink:  [255,105,180],
+	  indianred:  [205,92,92],
+	  indigo: [75,0,130],
+	  ivory:  [255,255,240],
+	  khaki:  [240,230,140],
+	  lavender: [230,230,250],
+	  lavenderblush:  [255,240,245],
+	  lawngreen:  [124,252,0],
+	  lemonchiffon: [255,250,205],
+	  lightblue:  [173,216,230],
+	  lightcoral: [240,128,128],
+	  lightcyan:  [224,255,255],
+	  lightgoldenrodyellow: [250,250,210],
+	  lightgray:  [211,211,211],
+	  lightgreen: [144,238,144],
+	  lightgrey:  [211,211,211],
+	  lightpink:  [255,182,193],
+	  lightsalmon:  [255,160,122],
+	  lightseagreen:  [32,178,170],
+	  lightskyblue: [135,206,250],
+	  lightslategray: [119,136,153],
+	  lightslategrey: [119,136,153],
+	  lightsteelblue: [176,196,222],
+	  lightyellow:  [255,255,224],
+	  lime: [0,255,0],
+	  limegreen:  [50,205,50],
+	  linen:  [250,240,230],
+	  magenta:  [255,0,255],
+	  maroon: [128,0,0],
+	  mediumaquamarine: [102,205,170],
+	  mediumblue: [0,0,205],
+	  mediumorchid: [186,85,211],
+	  mediumpurple: [147,112,219],
+	  mediumseagreen: [60,179,113],
+	  mediumslateblue:  [123,104,238],
+	  mediumspringgreen:  [0,250,154],
+	  mediumturquoise:  [72,209,204],
+	  mediumvioletred:  [199,21,133],
+	  midnightblue: [25,25,112],
+	  mintcream:  [245,255,250],
+	  mistyrose:  [255,228,225],
+	  moccasin: [255,228,181],
+	  navajowhite:  [255,222,173],
+	  navy: [0,0,128],
+	  oldlace:  [253,245,230],
+	  olive:  [128,128,0],
+	  olivedrab:  [107,142,35],
+	  orange: [255,165,0],
+	  orangered:  [255,69,0],
+	  orchid: [218,112,214],
+	  palegoldenrod:  [238,232,170],
+	  palegreen:  [152,251,152],
+	  paleturquoise:  [175,238,238],
+	  palevioletred:  [219,112,147],
+	  papayawhip: [255,239,213],
+	  peachpuff:  [255,218,185],
+	  peru: [205,133,63],
+	  pink: [255,192,203],
+	  plum: [221,160,221],
+	  powderblue: [176,224,230],
+	  purple: [128,0,128],
+	  red:  [255,0,0],
+	  rosybrown:  [188,143,143],
+	  royalblue:  [65,105,225],
+	  saddlebrown:  [139,69,19],
+	  salmon: [250,128,114],
+	  sandybrown: [244,164,96],
+	  seagreen: [46,139,87],
+	  seashell: [255,245,238],
+	  sienna: [160,82,45],
+	  silver: [192,192,192],
+	  skyblue:  [135,206,235],
+	  slateblue:  [106,90,205],
+	  slategray:  [112,128,144],
+	  slategrey:  [112,128,144],
+	  snow: [255,250,250],
+	  springgreen:  [0,255,127],
+	  steelblue:  [70,130,180],
+	  tan:  [210,180,140],
+	  teal: [0,128,128],
+	  thistle:  [216,191,216],
+	  tomato: [255,99,71],
+	  turquoise:  [64,224,208],
+	  violet: [238,130,238],
+	  wheat:  [245,222,179],
+	  white:  [255,255,255],
+	  whitesmoke: [245,245,245],
+	  yellow: [255,255,0],
+	  yellowgreen:  [154,205,50]
+	};
+	
+	var reverseKeywords = {};
+	for (var key in cssKeywords) {
+	  reverseKeywords[JSON.stringify(cssKeywords[key])] = key;
+	}
+
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var mrcolor = __webpack_require__(8);
+	var Hash = __webpack_require__(6);
+	var hat = __webpack_require__(12);
+	var util = __webpack_require__(5);
+	var nextcolor = mrcolor();
+	var rack = hat.rack(128,10,2);
+	
+	// foreach key in data add to hash axises 
+	// if new addition, create a color.
+	var colorToString = function(colorobj) {
+	    var color = colorobj.rgb();
+	    return 'rgb('+color[0]+','+color[1]+','+color[2]+')';
+	};
+	var update = function(list,linecolors) {
+	    var axishash = this.axishash;
+	    list.forEach(function(data) {
+	        var idx = 0;
+	        Hash(data)
+	            .filter(function(obj,key) {
+	                return key !== 'date'
+	            })
+	            .forEach(function(value,key) {
+	                if (axishash[key] === undefined) {
+	                    var color = undefined;
+	                    if ((linecolors !== undefined) && (linecolors[idx] !== undefined)) 
+	                        color = mrcolor.rgbhexToColorObj(linecolors[idx]);
+	                    else 
+	                        color = nextcolor();
+	                    idx++;
+	                    axishash[key] = {
+	                        color:color,
+	                        newarrival:true,
+	                        display:true
+	                    };
+	                } else {
+	                    axishash[key].newarrival = false;
+	                }
+	            })
+	        ;
+	    });
+	    return axishash;
+	};
+	var clear = function(legend_el) {
+	    this.axishash = {};
+	    $(legend_el).empty();   
+	};
+	var updateHTML = function(params) {
+	    if (params.el === undefined) {
+	        return;
+	    }
+	    var el = params.el;
+	    var axishash = this.axishash;
+	    Object.keys(axishash).forEach(function(axis) {
+	        if (axishash[axis].newarrival === true) {
+	            var legendlinestring = 'vertical-align:middle;display:inline-block;width:20px;border:thin solid '+colorToString(axishash[axis].color);
+	            var axisstring = 'padding:0;line-height:10px;font-size:10px;display:inline-block;margin-right:5px;';
+	            var legendid = '_'+rack(axis);
+	//            console.log(legendid);
+	            $(el)
+	                .append('<div class="legend" id="'+legendid+'"><input type=checkbox checked></input><div style="'+axisstring+'" class="axisname">' + axis + '</div><hr style="'+ legendlinestring+'" class="legendline" /></div>')
+	                .css('font-family','sans-serif');
+	            $('#'+legendid+' input[type="checkbox"]').click(function() {
+	                //
+	                //if ($('.legend input[type="checkbox"]:checked').length > 1) {
+	                    var legendname = rack.get(legendid.slice(1));
+	                    axishash[legendname].display = !axishash[legendname].display; // toggle boolean
+	                    $(this).attr('checked',axishash[legendname].display);
+	                    util.redraw({yaxises:axishash});  
+	               // }
+	            });
+	        }
+	    },this);
+	};
+	exports = module.exports = function() {
+	    this.axishash  = {};
+	    this.update = update;
+	    this.updateHTML = updateHTML;
+	    this.clear = clear;
+	};
+
+
+/***/ },
+/* 12 */
+/***/ function(module, exports) {
+
+	var hat = module.exports = function (bits, base) {
+	    if (!base) base = 16;
+	    if (bits === undefined) bits = 128;
+	    if (bits <= 0) return '0';
+	    
+	    var digits = Math.log(Math.pow(2, bits)) / Math.log(base);
+	    for (var i = 2; digits === Infinity; i *= 2) {
+	        digits = Math.log(Math.pow(2, bits / i)) / Math.log(base) * i;
+	    }
+	    
+	    var rem = digits - Math.floor(digits);
+	    
+	    var res = '';
+	    
+	    for (var i = 0; i < Math.floor(digits); i++) {
+	        var x = Math.floor(Math.random() * base).toString(base);
+	        res = x + res;
+	    }
+	    
+	    if (rem) {
+	        var b = Math.pow(base, rem);
+	        var x = Math.floor(Math.random() * b).toString(base);
+	        res = x + res;
+	    }
+	    
+	    var parsed = parseInt(res, base);
+	    if (parsed !== Infinity && parsed >= Math.pow(2, bits)) {
+	        return hat(bits, base)
+	    }
+	    else return res;
+	};
+	
+	hat.rack = function (bits, base, expandBy) {
+	    var fn = function (data) {
+	        var iters = 0;
+	        do {
+	            if (iters ++ > 10) {
+	                if (expandBy) bits += expandBy;
+	                else throw new Error('too many ID collisions, use more bits')
+	            }
+	            
+	            var id = hat(bits, base);
+	        } while (Object.hasOwnProperty.call(hats, id));
+	        
+	        hats[id] = data;
+	        return id;
+	    };
+	    var hats = fn.hats = {};
+	    
+	    fn.get = function (id) {
+	        return fn.hats[id];
+	    };
+	    
+	    fn.set = function (id, value) {
+	        fn.hats[id] = value;
+	        return fn;
+	    };
+	    
+	    fn.bits = bits || 128;
+	    fn.base = base || 16;
+	    return fn;
+	};
+
+
+/***/ },
+/* 13 */
+/***/ function(module, exports) {
+
+	
+	var colorToString = function(colorobj) {
+	    var color = colorobj.rgb();
+	    return 'rgb('+color[0]+','+color[1]+','+color[2]+')';
+	};
+	// get left and right neighbors of x
+	var getNeighbors = function(x,list) {
+	    var left = undefined;
+	    var right = undefined;
+	    for (var i = 0; i < list.length; i++) {
+	        var point = list[i];
+	        if (point.x <= x) 
+	            left = list[i];
+	        if (point.x > x)
+	            right = list[i];
+	        if (right !== undefined) 
+	            break;
+	    }
+	    
+	    return {left:left,right:right}
+	};
+	var equationY = function(point1,point2,x) {
+	    var m = (point2.y - point1.y) / (point2.x - point1.x);
+	    return (m * (x - point1.x)) + point1.y
+	}
+	var drawVerticalLine = function(params) {
+	    var ctx = params.ctx;
+	    var color = params.color;
+	    ctx.lineWidth = 1;
+	    ctx.strokeStyle = color;
+	    ctx.clearRect(0,0,params.width,params.height);
+	    ctx.beginPath();
+	    var x = params.x;
+	    if (params.x % 1 === 0) 
+	        x += 0.5;
+	    ctx.moveTo(x,params.height);
+	    ctx.lineTo(x,0);
+	    ctx.stroke();
+	};
+	var drawIntersections = function(params) {
+	    var sources = params.sources;
+	    var ctx = params.ctx;
+	    var x = params.x;
+	    sources.forEach(function(source) {
+	        var datahash = source.displayData;
+	        if (datahash !== undefined) {
+	            Object.keys(datahash).forEach(function(key) {
+	                var val = datahash[key];
+	                var neighbors = getNeighbors(x,val.list);
+	                if ((neighbors.left !== undefined) && (neighbors.right !== undefined)) {
+	                    var intersectY = equationY(neighbors.left,neighbors.right,x); 
+	                    ctx.beginPath();
+	                    var color = colorToString(val.yaxis.color);
+	                    ctx.fillStyle = color;
+	                    ctx.strokeStyle = '#FFFFFF';
+	                    ctx.arc(x, intersectY,4, 0, Math.PI*2, false);
+	                    ctx.fill();
+	                    ctx.stroke();
+	                }
+	            });
+	        }
+	    });
+	};
+	var mousemove = function(ev) {
+	    this.mouseisout = false;
+	    var offset = $('#'.concat(this.wrappingDivId)).offset();
+	    var x = ev.pageX - offset.left;
+	    var y = ev.pageY - offset.top;
+	    
+	    if (x < this.config.axispadding.left)
+	        return
+	    
+	    this.lastx = x; 
+	    drawVerticalLine({ctx:this.ctx,height:this.canvas.height,width:this.canvas.width,x:x+0.5,color:this.color.interactionline});
+	    drawIntersections({ctx:this.ctx,sources:this.sources,x:x});
+	    this.isCleared = false;
+	};
+	
+	var redraw = function() {
+	    if (this.mouseisout === true) {
+	        if (this.isCleared === false) {
+	            this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+	            this.isCleared = true;
+	        }
+	        return;
+	    }
+	    if (this.lastx !== undefined) {
+	        var x = this.lastx;
+	        drawVerticalLine({ctx:this.ctx,height:this.canvas.height,width:this.canvas.width,x:x,color:this.color.interactionline});
+	        drawIntersections({ctx:this.ctx,sources:this.sources,x:x});
+	        this.isCleared = false;
+	    } 
+	};
+	var stop = function() {
+	    this.mouseisout = true;
+	};
+	
+	var interaction = function (params) {
+	    this.isCleared = false;
+	    this.mouseisout = false;
+	
+	    this.lastx = undefined;
+	   
+	    // these are exported to this for the test scripts
+	    this.getNeighbors = getNeighbors;
+	    this.equationY = equationY;
+	
+	    this.drawVerticalLine = drawVerticalLine;
+	    this.drawIntersections = drawIntersections;
+	
+	    this.mousemove = mousemove.bind(this);
+	
+	    if (params !== undefined) {
+	        this.ctx = params.ctx;
+	        this.canvas = params.canvas;    
+	        this.sources = params.sources;
+	        this.wrappingDivId = params.wrappingDivId;
+	    }
+	
+	
+	    this.redraw = redraw.bind(this);
+	    this.stop = stop.bind(this);
+	    this.config = undefined;
+	    this.color = params.color
+	};
+	exports = module.exports = interaction;
+
+
+/***/ },
+/* 14 */
+/***/ function(module, exports) {
+
+	!function(){"use strict";var t=angular.module("chartjs",[]),a={line:"Line",bar:"Bar",radar:"Radar",polar:"PolarArea",pie:"Pie",doughnut:"Doughnut"},n=function(a){var n=a.charAt(0).toUpperCase()+a.slice(1);t.directive("cjs"+n,["ChartFactory",function(t){return new t(a)}])};for(var r in a)n(r);t.factory("ChartFactory",function(){return function(t){t=a[t];var n=function(t,a){var n,r,e={};for(n in t)r=a[n],"undefined"!=typeof r&&(e[n]=r);return e};if("undefined"!=typeof t)return{restrict:"EAC",template:"<canvas></canvas>",replace:!0,scope:{dataset:"=",options:"="},link:function(a,r,e){var i=r[0].getContext("2d"),o=new Chart(i),u={};angular.extend(u,Chart.defaults.global,Chart.defaults[t]),angular.extend(u,a.options,n(u,e)),o=o[t](a.dataset,u),a.$watch("dataset",function(t){o.initialize(t)},!0)}}}})}();
+
+/***/ },
+/* 15 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -659,7 +2890,7 @@
 	
 	    guardians.listView().title('Guardian Search').fields([nga.field('iconPath').label('').template('<img src="http://www.bungie.net{{ entry.values.iconPath }}" height="48" width="48" />'), nga.field('displayName').label('Display Name'),
 	    //nga.field('', 'template').label('').template('<span class="pull-right"><a href="#/characters/list">Show</a>'),
-	    nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="characters" filter="{ platformid: entry.values.membershipType, memberid:entry.values.membershipId }" label="Characters" size="sm"></ma-filtered-list-button>'), nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="triumphs" filter="{ platformid: entry.values.membershipType, memberid:entry.values.membershipId }" label="Triumphs" size="sm"></ma-filtered-list-button>')]).
+	    nga.field('', 'template').label('').template('<a class="btn btn-primary" href="#/characters/show/{{entry.values.membershipType}}-{{entry.values.membershipId}}">Characters</a>'), nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="triumphs" filter="{ platformid: entry.values.membershipType, memberid:entry.values.membershipId }" label="Triumphs" size="sm"></ma-filtered-list-button>')]).
 	    //nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="badges" filter="{ platformid: entry.values.membershipType, memberid:entry.values.membershipId }" size="sm"></ma-filtered-list-button>'),
 	    filters([nga.field('displayname').label('').attributes({ 'placeholder': 'Display name' }).pinned(true)]).actions(['back']).batchActions([]);
 	
@@ -669,14 +2900,28 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 4 */
-/***/ function(module, exports) {
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
 	Object.defineProperty(exports, '__esModule', {
 	    value: true
 	});
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	var _moment = __webpack_require__(17);
+	
+	var _moment2 = _interopRequireDefault(_moment);
+	
+	var _showtemplateHtml = __webpack_require__(117);
+	
+	var _showtemplateHtml2 = _interopRequireDefault(_showtemplateHtml);
+	
+	var fromNow = function fromNow(v) {
+	    return (0, _moment2['default'])(v).fromNow();
+	};
 	
 	exports['default'] = function (nga, admin) {
 	
@@ -685,12 +2930,21 @@
 	    characters.identifier(nga.field('characterBase.characterId'));
 	
 	    characters.url(function (entityName, viewType, identifierValue, identifierName) {
-	        return 'platformid/Account/memberid/Summary/';
+	        if (identifierValue) {
+	            var arr = identifierValue.split('-');
+	            return arr[0] + '/Account/' + arr[1] + '/Summary/';
+	        } else {
+	            return 'platformid/Account/memberid/Summary/';
+	        }
 	    });
 	
-	    characters.listView().title('Characters').fields([nga.field('emblemPath').label('').template('<img src="http://www.bungie.net{{ entry.values.emblemPath }}" height="42" width="42" />'), nga.field('characterBase.powerLevel').label('Light'), nga.field('characterBase.classDef.className').label('Class'),
+	    characters.listView().title('Characters').fields([nga.field('emblemPath').label('').template('<img src="http://www.bungie.net{{ entry.values.emblemPath }}" height="42" width="42" />'), nga.field('characterBase.powerLevel').label('Light'), nga.field('characterBase.classDef.className').label('Class'), nga.field('', 'template').label('').template('<span class="pull-right"><a class="btn btn-default btn-xs" href="#/charactersummary/show/{{entry.values[\'characterBase.membershipType\']}}-{{entry.values[\'characterBase.membershipId\']}}-{{entry.values[\'characterBase.characterId\']}}"><span class="glyphicon glyphicon-eye-open"></span>&nbsp;Summary</a>'),
+	    //nga.field('characterBase.currentActivityHash').label('Current Activity'),
+	    nga.field('', 'template').label('').template('<ma-filtered-list-button ng-if="entry.values[\'characterBase.currentActivityHash\']!=\'0\'" entity-name="carnagereport" filter="{ activityid: entry.values[\'characterBase.currentActivityHash\'] }" label="Current Activity" size="sm"></ma-filtered-list-button>'),
 	    //nga.field('characterBase.characterId').label('id'),
-	    nga.field('characterBase.minutesPlayedTotal').label('Minutes Played'), nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="inventory" filter="{platformid: entry.values[\'characterBase.membershipType\'],memberid:entry.values[\'characterBase.membershipId\'],characterid: entry.values[\'characterBase.characterId\']}" label="Inventory" size="sm"></ma-filtered-list-button>'), nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="progression" filter="{platformid: entry.values[\'characterBase.membershipType\'],memberid:entry.values[\'characterBase.membershipId\'],characterid: entry.values[\'characterBase.characterId\']}" label="Progression" size="sm"></ma-filtered-list-button>')]).actions(['back', 'export']).batchActions([]);
+	    nga.field('characterBase.minutesPlayedTotal').label('Minutes Played')]).actions(['back', 'export']).batchActions([]);
+	
+	    characters.showView().title('Characters').fields([nga.field('characters', 'embedded_list').label('Characters').targetFields([nga.field('characterBase.membershipType'), nga.field('characterBase.membershipId'), nga.field('characterBase.characterId')])]).actions(['back']).template(_showtemplateHtml2['default']);
 	
 	    return characters;
 	};
@@ -698,604 +2952,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 5 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	
-	exports['default'] = function (nga, admin) {
-	
-	    var inventory = admin.getEntity('inventory');
-	
-	    inventory.identifier(nga.field('itemHash'));
-	
-	    inventory.url(function (entityName, viewType, identifierValue, identifierName) {
-	        if (identifierValue) return 'platformid/Account/memberid/Character/characterid/Inventory/' + identifierValue;else return 'platformid/Account/memberid/Character/characterid/Inventory/';
-	    });
-	
-	    inventory.readOnly();
-	
-	    inventory.listView().title('Inventory').fields([nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values[\'definition.icon\'] }}" height="48" width="48" />'),
-	    //nga.field('itemHash').label('itemHash'),
-	    nga.field('primaryStat.value').label('Light'), nga.field('definition.itemName').label('Name'), nga.field('definition.tierTypeName').label('Tier'), nga.field('definition.itemTypeName').label('Type'), nga.field('', 'template').label('').template('<span class="pull-right"><a class="btn btn-default btn-xs" href="#/inventory/show/{{entry.values.currentPlatformId}}-{{entry.values.currentMemberId}}-{{entry.values.currentCharacterId}}-{{entry.values.itemInstanceId}}"><span class="glyphicon glyphicon-eye-open"></span>&nbsp;Details</a>')]).actions(['back', 'export']).batchActions([]);
-	
-	    inventory.showView().title('Item Detail').actions(['back']).fields([nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values[\'definition.icon\'] }}" height="96" width="96" />'), nga.field('definition.itemName').label('Name'), nga.field('definition.itemDescription').label('Description'), nga.field('primaryStat.value').label('Light'), nga.field('perks', 'embedded_list').label('Perks').targetFields([nga.field('').label('').template('<img style="background-color:gray" src="https://www.bungie.net{{ entry.values.iconPath }}" height="48" width="48" />'), nga.field('definition.displayName').label('Name'), nga.field('definition.displayDescription').label('Description')])]);
-	
-	    return inventory;
-	};
-	
-	module.exports = exports['default'];
-
-/***/ },
-/* 6 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	
-	exports['default'] = function (nga, admin) {
-	
-	    var triumphs = admin.getEntity('triumphs');
-	
-	    triumphs.identifier(nga.field('triumphSetHash'));
-	
-	    triumphs.url(function (entityName, viewType, identifierValue, identifierName) {
-	        return 'platformid/Account/memberid/Triumphs/';
-	    });
-	
-	    triumphs.listView().title('Triumphs').fields([nga.field('definition.title').label('Title'), nga.field('definition.incompleteDetails').label('Details').template('<div style="width:200px;"> {{ value }}" <div/>'), nga.field('triumphs', 'embedded_list').label('Triumphs').targetFields([nga.field('definition.iconPath').label('').template('<img style="width:21px;height:21px;background-color:darkgray;" src="https://www.bungie.net{{ value }}" />'), nga.field('definition.title').label('Title'), nga.field('definition.hasProgress').label('Progress'), nga.field('complete').label('Complete')])]).actions(['back']).batchActions([]);
-	
-	    return triumphs;
-	};
-	
-	module.exports = exports['default'];
-
-/***/ },
-/* 7 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	
-	exports['default'] = function (nga, admin) {
-	
-	    var progression = admin.getEntity('progression');
-	
-	    progression.identifier(nga.field('progressionHash'));
-	
-	    progression.url(function (entityName, viewType, identifierValue, identifierName) {
-	        if (identifierValue) return 'platformid/Account/memberid/Character/characterid/Progression/' + identifierValue;else return 'platformid/Account/memberid/Character/characterid/Progression/';
-	    });
-	
-	    progression.listView().title('Progression').fields([
-	    //nga.field('definition.icon').label('').template('<img src="http://www.bungie.net{{ value }}" style="background-color:darkgray;" height="42" width="42" />'),
-	    nga.field('definition.name').label('Name'), nga.field('currentProgress').label('Progress'), nga.field('level').label('Level')]).perPage(100).batchActions([]);
-	
-	    return progression;
-	};
-	
-	module.exports = exports['default'];
-
-/***/ },
-/* 8 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	
-	exports['default'] = function (nga, admin) {
-	
-	    var items = admin.getEntity('items');
-	
-	    items.identifier(nga.field('itemHash'));
-	
-	    items.url(function (entityName, viewType, identifierValue, identifierName) {
-	        if (identifierValue) return 'Manifest/6/' + identifierValue + '/';else return 'Explorer/Items/';
-	    });
-	
-	    items.readOnly();
-	
-	    items.listView().title('Items').fields([nga.field('icon').label('').template('<img src="http://www.bungie.net{{ value }}" height="48" width="48" />'), nga.field('itemName').label('Name'), nga.field('itemTypeName').label('Type'), nga.field('tierTypeName').label('Tier'), nga.field('', 'template').label('').template('<span class="pull-right"><a class="btn btn-default btn-xs" href="#/items/show/{{entry.values.itemHash}}"><span class="glyphicon glyphicon-eye-open"></span>&nbsp;Details</a>')]).perPage(50).filters([nga.field('categories')]).actions(['back', 'export']).sortDir('ASC').sortField('itemName').batchActions([]);
-	
-	    items.showView().title('Item Detail').actions(['back']).fields([nga.field('icon').label('').template('<img src="http://www.bungie.net{{ value }}" height="96" width="96" />'), nga.field('itemName').label('Name'), nga.field('itemDescription').label('Description'), nga.field('itemTypeName').label('Type'), nga.field('tierTypeName').label('Tier')]);
-	
-	    return items;
-	};
-	
-	module.exports = exports['default'];
-
-/***/ },
-/* 9 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	
-	exports['default'] = function (nga, admin) {
-	
-	    var nightfall = admin.getEntity('nightfall');
-	
-	    nightfall.identifier(nga.field('activityHash'));
-	
-	    nightfall.url(function (entityName, viewType, identifierValue, identifierName) {
-	        return 'advisors/';
-	    });
-	
-	    nightfall.readOnly();
-	
-	    nightfall.showView().title('Nightfall').actions(['back']).fields([nga.field('').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ entry.values.iconPath }}" height="84" width="84" />'), nga.field('definition.activityName').label('Name'), nga.field('definition.activityDescription').label('Description'), nga.field('definition.minParty').label('Min Party'), nga.field('definition.maxParty').label('Max Party'), nga.field('definition.rewards', 'embedded_list').label('Rewards').targetFields([nga.field('definition.icon').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="42" width="42" />'), nga.field('definition.itemName').label('Name'), nga.field('definition.tierTypeName').label('Tier'), nga.field('definition.value').label('Value')])]);
-	
-	    //nga.field('').label('all').template('<div> {{ entry.values }}</div>'),
-	    return nightfall;
-	};
-	
-	module.exports = exports['default'];
-
-/***/ },
-/* 10 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	
-	exports['default'] = function (nga, admin) {
-	
-	    var heroicstrike = admin.getEntity('heroicstrike');
-	
-	    heroicstrike.identifier(nga.field('activityHash'));
-	
-	    heroicstrike.url(function (entityName, viewType, identifierValue, identifierName) {
-	        return 'advisors/';
-	    });
-	
-	    heroicstrike.readOnly();
-	
-	    heroicstrike.showView().title('Heroic Strike').actions(['back']).fields([nga.field('').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ entry.values.iconPath }}" height="84" width="84" />'), nga.field('definition.activityName').label('Name'), nga.field('definition.activityDescription').label('Description'), nga.field('definition.minParty').label('Min Party'), nga.field('definition.maxParty').label('Max Party'), nga.field('definition.rewards', 'embedded_list').label('Rewards').targetFields([nga.field('definition.icon').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="42" width="42" />'), nga.field('definition.itemName').label('Name'), nga.field('definition.tierTypeName').label('Tier'), nga.field('definition.value').label('Value')])]);
-	
-	    //nga.field('').label('all').template('<div> {{ entry.values }}</div>'),
-	    return heroicstrike;
-	};
-	
-	module.exports = exports['default'];
-
-/***/ },
-/* 11 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	
-	exports['default'] = function (nga, admin) {
-	
-	    var dailychapter = admin.getEntity('dailychapter');
-	
-	    dailychapter.identifier(nga.field('activityHash'));
-	
-	    dailychapter.url(function (entityName, viewType, identifierValue, identifierName) {
-	        return 'advisors/';
-	    });
-	
-	    dailychapter.readOnly();
-	
-	    dailychapter.showView().title('Daily Chapter').actions(['back']).fields([nga.field('').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ entry.values.iconPath }}" height="84" width="84" />'), nga.field('definition.activityName').label('Name'), nga.field('definition.activityDescription').label('Description'), nga.field('definition.minParty').label('Min Party'), nga.field('definition.maxParty').label('Max Party'), nga.field('definition.rewards', 'embedded_list').label('Rewards').targetFields([nga.field('definition.icon').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="42" width="42" />'), nga.field('definition.itemName').label('Name'), nga.field('definition.tierTypeName').label('Tier'), nga.field('definition.value').label('Value')])]);
-	
-	    //nga.field('').label('all').template('<div> {{ entry.values }}</div>'),
-	    return dailychapter;
-	};
-	
-	module.exports = exports['default'];
-
-/***/ },
-/* 12 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	
-	exports['default'] = function (nga, admin) {
-	
-	    var dailycrucible = admin.getEntity('dailycrucible');
-	
-	    dailycrucible.identifier(nga.field('activityHash'));
-	
-	    dailycrucible.url(function (entityName, viewType, identifierValue, identifierName) {
-	        return 'advisors/';
-	    });
-	
-	    dailycrucible.readOnly();
-	
-	    dailycrucible.showView().title('Daily Crucible').actions(['back']).fields([nga.field('').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ entry.values.iconPath }}" height="84" width="84" />'), nga.field('definition.activityName').label('Name'), nga.field('definition.activityDescription').label('Description'), nga.field('definition.minParty').label('Min Party'), nga.field('definition.maxParty').label('Max Party'), nga.field('definition.rewards', 'embedded_list').label('Rewards').targetFields([nga.field('definition.icon').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="42" width="42" />'), nga.field('definition.itemName').label('Name'), nga.field('definition.tierTypeName').label('Tier'), nga.field('definition.value').label('Value')])]);
-	
-	    //nga.field('').label('all').template('<div> {{ entry.values }}</div>'),
-	    return dailycrucible;
-	};
-	
-	module.exports = exports['default'];
-
-/***/ },
-/* 13 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	
-	exports['default'] = function (nga, admin) {
-	
-	    var weeklycrucible = admin.getEntity('weeklycrucible');
-	
-	    weeklycrucible.identifier(nga.field('activityHash'));
-	
-	    weeklycrucible.url(function (entityName, viewType, identifierValue, identifierName) {
-	        return 'advisors/';
-	    });
-	
-	    weeklycrucible.readOnly();
-	
-	    weeklycrucible.showView().title('Weekly Crucible').actions(['back']).fields([nga.field('definition.releaseIcon').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="84" width="84" />'), nga.field('definition.activityName').label('Name'), nga.field('definition.activityDescription').label('Description')]);
-	
-	    //nga.field('').label('all').template('<div> {{ entry.values }}</div>'),
-	    return weeklycrucible;
-	};
-	
-	module.exports = exports['default'];
-
-/***/ },
-/* 14 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	
-	exports['default'] = function (nga, admin) {
-	
-	    var arena = admin.getEntity('arena');
-	
-	    arena.identifier(nga.field('activityHash'));
-	
-	    arena.url(function (entityName, viewType, identifierValue, identifierName) {
-	        return 'advisors/';
-	    });
-	
-	    arena.readOnly();
-	
-	    arena.listView().title('Arena').actions(['back']).fields([nga.field('iconPath').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="42" width="42" />'),
-	    //nga.field('activityHash').label('hash'),
-	    nga.field('bossFight').label('Boss Fight'), nga.field('isCompleted').label('Completed'), nga.field('definition.activityName').label('Name'), nga.field('definition.activityDescription').label('Description'), nga.field('definition.minParty').label('Min Party'), nga.field('definition.maxParty').label('Max Party')]).batchActions([]);
-	
-	    return arena;
-	};
-	
-	module.exports = exports['default'];
-
-/***/ },
-/* 15 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	
-	exports['default'] = function (nga, admin) {
-	
-	    var armsday = admin.getEntity('armsday');
-	
-	    armsday.url(function (entityName, viewType, identifierValue, identifierName) {
-	        return 'advisors/';
-	    });
-	
-	    armsday.readOnly();
-	
-	    armsday.showView().title('Arms Day').fields([nga.field('active'), nga.field('startDate'), nga.field('endDate'), nga.field('nextStartDate'), nga.field('canPlaceOrder'), nga.field('orders', 'embedded_list').label('Orders').targetFields([nga.field('item.definition.icon').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="42" width="42" />'), nga.field('item.definition.itemName').label('Name'), nga.field('item.definition.tierTypeName').label('Tier'), nga.field('item.definition.itemTypeName').label('Type')]), nga.field('testWeapons', 'embedded_list').label('Test Weapons').targetFields([nga.field('item.definition.icon').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="42" width="42" />'), nga.field('item.definition.itemName').label('Name'), nga.field('item.definition.tierTypeName').label('Tier'), nga.field('item.definition.itemTypeName').label('Type')])]);
-	
-	    return armsday;
-	};
-	
-	module.exports = exports['default'];
-
-/***/ },
-/* 16 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	
-	exports['default'] = function (nga, admin) {
-	
-	    var availablebounties = admin.getEntity('availablebounties');
-	
-	    availablebounties.identifier(nga.field('activityHash'));
-	
-	    availablebounties.url(function (entityName, viewType, identifierValue, identifierName) {
-	        return 'advisors/';
-	    });
-	
-	    availablebounties.readOnly();
-	
-	    availablebounties.showView().title('Available Bounties').fields([nga.field('saleItems', 'embedded_list').label('').targetFields([nga.field('item.definition.icon').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="42" width="42" />'), nga.field('item.definition.itemName').label('Name'), nga.field('item.definition.itemDescription').label('Description')])]);
-	
-	    return availablebounties;
-	};
-	
-	module.exports = exports['default'];
-
-/***/ },
 /* 17 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	
-	exports['default'] = function (nga, admin) {
-	
-	    var myaccount = admin.getEntity('myaccount');
-	
-	    myaccount.url(function (entityName, viewType, identifierValue, identifierName) {
-	        return 'https://www.bungie.net/Platform/User/GetCurrentBungieAccount/';
-	    });
-	
-	    myaccount.listView().title('My Account').fields([nga.field('', 'template').label('').template('<span ng-if="entry.values.message">Login to Bungie.net&nbsp;<button ng-controller="BungieRedirect" ng-click="goBungie()">Go</button>'),
-	    //                nga.field('').label('')
-	    //                    .template('<img  ng-if="entry.values[\'userInfo.iconPath\']" src="http://www.bungie.net{{ entry.values[\'userInfo.iconPath\'] }}" height="42" width="42" />'),
-	    nga.field('userInfo.displayName').label('Name'), nga.field('grimoireScore').label('Grimoire Score'), nga.field('characters').template('<div> {{ entry.values[\'characters\'][0].characterId }} </div>'), nga.field('', 'template').label('').template('<ma-filtered-list-button  ng-if="!entry.values.message" entity-name="vault" filter="{ platformid: entry.values[\'userInfo.membershipType\'],characterid:entry.values[\'characters\'][0].characterId,memberid:entry.values[\'userInfo.membershipId\'] }" label="Vault" size="sm"></ma-filtered-list-button>'), nga.field('characters', 'embedded_list').label('Characters').targetFields([nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values.emblemPath }}" height="42" width="42" />'), nga.field('characterClass.className').label('Class'), nga.field('level').label('Level'), nga.field('powerLevel').label('Light'), nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="inventory" filter="{platformid: entry.values.membershipType,memberid:entry.values.membershipId,characterid: entry.values.characterId }" label="Inventory" size="sm"></ma-filtered-list-button>'), nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="vendors" filter="{platformid: entry.values.membershipType,characterid: entry.values.characterId }" label="Vendors" size="sm"></ma-filtered-list-button>')])
-	    //nga.field('').label('').template("<div> {{ entry.values }} </div>"),
-	    ]).actions(['back']).batchActions([]);
-	
-	    return myaccount;
-	};
-	
-	module.exports = exports['default'];
-
-/***/ },
-/* 18 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	
-	exports['default'] = function (nga, admin) {
-	
-	    var vault = admin.getEntity('vault');
-	
-	    vault.identifier(nga.field('uniqueId'));
-	
-	    vault.url(function (entityName, viewType, identifierValue, identifierName) {
-	        return 'platformid/MyAccount/Vault/Summary/';
-	    });
-	
-	    vault.listView().title('Vault').fields([nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values[\'definition.icon\'] }}" height="48" width="48" />'), nga.field('primaryStat.value').label('Light'), nga.field('definition.talentGridHash').label('Light'), nga.field('definition.itemName').label('Name'), nga.field('definition.itemTypeName').label('Type'), nga.field('definition.tierTypeName').label('Tier'),
-	    //nga.field('talentGrid.nodes').label('talentGrid'),
-	    //        nga.field('talentGrid.nodes', 'embedded_list').label('Nodes')
-	    //                .targetFields([
-	    //                        nga.field('nodeIndex'),
-	    //                        nga.field('steps', 'embedded_list').label('steps')
-	    //                            .targetFields([
-	    //                                    nga.field('nodeStepName'),
-	    //                                    nga.field('nodeStepDescription'),
-	    //                                ])
-	    //                    ]),
-	    nga.field('', 'template').label('').template('<span class="pull-right"><a class="btn btn-default btn-xs" href="#/inventory/show/{{entry.values.currentPlatformId}}-{{entry.values.currentMemberId}}-{{entry.values.currentCharacterId}}-{{entry.values.itemId}}"><span class="glyphicon glyphicon-eye-open"></span>&nbsp;Details</a>')]).
-	    //nga.field('').template('<div>{{ entry.values }}</div>')
-	    actions(['back', 'export']).perPage(200).batchActions([]);
-	
-	    return vault;
-	};
-	
-	module.exports = exports['default'];
-
-/***/ },
-/* 19 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	
-	exports['default'] = function (nga, admin) {
-	
-	    var vaultitem = admin.getEntity('vaultitem');
-	
-	    vaultitem.identifier(nga.field('itemHash'));
-	
-	    vaultitem.url(function (entityName, viewType, identifierValue, identifierName) {
-	        if (identifierValue) return 'Manifest/InventoryItem/' + identifierValue;else return 'Manifest/InventoryItem/';
-	    });
-	
-	    vaultitem.readOnly();
-	
-	    vaultitem.showView().title('Vault Item Detail').actions(['back']).fields([nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values.icon }}" height="96" width="96" />'), nga.field('itemName').label('Name'), nga.field('itemDescription').label('Description'), nga.field('primaryBaseStatHash').label('Light'),
-	    //            nga.field('perkHashes'),
-	    //            nga.field('perks', 'embedded_list').label('Perks')
-	    //                .targetFields([
-	    //                    nga.field('').template('<div> {{ entry.values }} </div>'),
-	    //                ]),
-	    //            nga.field('talentGridHash'),
-	    //            nga.field('talentGrid.gridHash'),
-	    nga.field('talentGrid.nodes', 'embedded_list').label('Nodes').targetFields([
-	    //nga.field('').template('<div> {{ entry.values }} </div>'),
-	    nga.field('steps', 'embedded_list').label('Steps').targetFields([nga.field('').label('').template('<img style="background-color:darkgray;" src="http://www.bungie.net{{ entry.values.icon }}" height="24" width="24" />'), nga.field('nodeStepName'), nga.field('nodeStepDescription')])])]);
-	
-	    //                            nga.field('perks', 'embedded_list').label('Perks')
-	    //                            .targetFields([
-	    //                                nga.field('displayIcon').label('').template('<img style="background-color:darkgray;" src="http://www.bungie.net{{ value }}" height="24" width="24" />'),
-	    //                                nga.field('displayName'),
-	    //                                nga.field('displayDescription'),
-	    //                            ]),
-	    //nga.field('').template('<div> {{ entry.values }} </div>'),
-	    return vaultitem;
-	};
-	
-	module.exports = exports['default'];
-
-/***/ },
-/* 20 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	
-	exports['default'] = function (nga, admin) {
-	
-	    var vendors = admin.getEntity('vendors');
-	
-	    vendors.identifier(nga.field('vendorHash'));
-	
-	    vendors.url(function (entityName, viewType, identifierValue, identifierName) {
-	        return 'platformid/MyAccount/Character/characterid/Vendors/Summaries/';
-	    });
-	
-	    vendors.readOnly();
-	
-	    vendors.listView().title('Vendors').fields([nga.field('').label('').template('<img style="background-color:black;" width="48" height="48" src="http://www.bungie.net{{ entry.values[\'definition.summary.vendorIcon\']}}" />'), nga.field('definition.summary.vendorName').label('Name'), nga.field('enabled').label('Enabled'), nga.field('nextRefreshDate').label('Next Refresh'),
-	    //nga.field('').label('').template('<div> {{ entry.values }} </div>'),
-	    //            nga.field('', 'template').label('').template('<span class="pull-right"><a class="btn btn-default btn-xs" filter="{ platformid: entry.values[\'userInfo.membershipType\'], memberid:entry.values[\'userInfo.membershipId\'] }" href="#/platformid/MyAccount/Character/vendorid/"><span class="glyphicon glyphicon-eye-open"></span>&nbsp;Items</a>'),
-	    nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="vendoritems" filter="{ platformid: entry.values.membershipType, characterid:entry.values.characterId, vendorid:entry.values.vendorHash }" label="Items" size="sm"></ma-filtered-list-button>')]).actions(['back', 'export']).perPage(50).batchActions([]);
-	
-	    return vendors;
-	};
-	
-	module.exports = exports['default'];
-
-/***/ },
-/* 21 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	
-	exports['default'] = function (nga, admin) {
-	
-	    var vendoritems = admin.getEntity('vendoritems');
-	
-	    vendoritems.identifier(nga.field('categoryTitle'));
-	
-	    vendoritems.url(function (entityName, viewType, identifierValue, identifierName) {
-	        return 'platformid/MyAccount/Character/characterid/Vendor/vendorid/';
-	    });
-	
-	    vendoritems.readOnly();
-	
-	    vendoritems.listView().title('Vendor Items').fields([nga.field('categoryTitle').label('Category'), nga.field('saleItems', 'embedded_list').label('Items').targetFields([nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values[\'definition.icon\'] }}" height="42" width="42" />'), nga.field('definition.itemName').label('Name'), nga.field('definition.itemTypeName').label('Type'), nga.field('definition.tierTypeName').label('Tier'),
-	    //nga.field('').label('').template('<div> {{ entry.values }} </div>'),
-	    nga.field('item.perks', 'embedded_list').label('').targetFields([nga.field('iconPath').label('').template('<img src="http://www.bungie.net{{ value }}" style="background-color:darkgray;" width="24" height="24" />'), nga.field('definition.displayName').label('Perk'), nga.field('definition.displayDescription').label('Description')])])]).actions(['back', 'export']).perPage(50).batchActions([]);
-	
-	    //    vendoritems.showView()
-	    //        .title('Vendor Item Detail')
-	    //        .actions(['back'])
-	    //        .fields([
-	    //            nga.field('vendorHash').label('Name'),
-	    //        ]);   
-	
-	    return vendoritems;
-	};
-	
-	module.exports = exports['default'];
-
-/***/ },
-/* 22 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, '__esModule', {
-	    value: true
-	});
-	var moment = __webpack_require__(23);
-	var fromNow = function fromNow(v) {
-	    return moment(v).fromNow();
-	};
-	
-	exports['default'] = function (nga, admin) {
-	
-	    //    chrome.cookies.getAll({
-	    //          'domain': '.bungie.net'
-	    //        }, function(cookies) {
-	    //          if (_.size(cookies) > 0) {
-	    //            for (var i=0; i<cookies.length; i++){
-	    //                if (cookies[i].name=='bungled') {
-	    //                    RestangularProvider.setDefaultHeaders(
-	    //                        {'X-API-Key': 'a119bbcfd2974bf6971ca1761aeb34a5',
-	    //                         'X-Csrf':cookies[i].value});
-	    //                }
-	    //            }
-	    //
-	    //          } else {
-	    //            RestangularProvider.setDefaultHeaders(
-	    //                {'X-API-Key': 'a119bbcfd2974bf6971ca1761aeb34a5'});
-	    //          }
-	    //    });
-	
-	    var dashboardTemplate = '<div class="row"><div class="col-lg-12"><div class="page-header"><h3>Greetings, Hive Bane!</h3></div></div></div>';
-	
-	    dashboardTemplate += '<div class="row dashboard-content"><div class="col-lg-6"><div class="panel panel-default" ng-repeat="collection in dashboardController.collections | orderElement" ng-if="$even">';
-	
-	    dashboardTemplate += '<ma-dashboard-panel collection="collection" entries="dashboardController.entries[collection.name()]" datastore="dashboardController.datastore"></ma-dashboard-panel></div></div>';
-	
-	    dashboardTemplate += '<div class="col-lg-6"><div class="panel panel-default" ng-repeat="collection in dashboardController.collections | orderElement" ng-if="$odd"><ma-dashboard-panel collection="collection" entries="dashboardController.entries[collection.name()]" datastore="dashboardController.datastore"></ma-dashboard-panel></div></div></div>';
-	
-	    var myaccount = admin.getEntity('myaccount');
-	    var myaccountfields = myaccount._views.ListView._fields;
-	
-	    console.log(myaccount._views.ListView._fields);
-	
-	    var dash = nga.dashboard().addCollection(nga.collection(myaccount).fields(myaccountfields)).template(dashboardTemplate);
-	
-	    return dash; //nga.dashboard().template(dashboardTemplate);
-	};
-	
-	module.exports = exports['default'];
-
-/***/ },
-/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(module) {//! moment.js
@@ -1649,7 +3306,7 @@
 	                module && module.exports) {
 	            try {
 	                oldLocale = globalLocale._abbr;
-	                __webpack_require__(25)("./" + name);
+	                __webpack_require__(19)("./" + name);
 	                // because defineLocale currently also sets the global locale, we
 	                // want to undo that for lazy loaded locales
 	                locale_locales__getSetGlobalLocale(oldLocale);
@@ -4986,10 +6643,10 @@
 	    return _moment;
 	
 	}));
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(24)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18)(module)))
 
 /***/ },
-/* 24 */
+/* 18 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -5005,204 +6662,204 @@
 
 
 /***/ },
-/* 25 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var map = {
-		"./af": 26,
-		"./af.js": 26,
-		"./ar": 27,
-		"./ar-ma": 28,
-		"./ar-ma.js": 28,
-		"./ar-sa": 29,
-		"./ar-sa.js": 29,
-		"./ar-tn": 30,
-		"./ar-tn.js": 30,
-		"./ar.js": 27,
-		"./az": 31,
-		"./az.js": 31,
-		"./be": 32,
-		"./be.js": 32,
-		"./bg": 33,
-		"./bg.js": 33,
-		"./bn": 34,
-		"./bn.js": 34,
-		"./bo": 35,
-		"./bo.js": 35,
-		"./br": 36,
-		"./br.js": 36,
-		"./bs": 37,
-		"./bs.js": 37,
-		"./ca": 38,
-		"./ca.js": 38,
-		"./cs": 39,
-		"./cs.js": 39,
-		"./cv": 40,
-		"./cv.js": 40,
-		"./cy": 41,
-		"./cy.js": 41,
-		"./da": 42,
-		"./da.js": 42,
-		"./de": 43,
-		"./de-at": 44,
-		"./de-at.js": 44,
-		"./de.js": 43,
-		"./dv": 45,
-		"./dv.js": 45,
-		"./el": 46,
-		"./el.js": 46,
-		"./en-au": 47,
-		"./en-au.js": 47,
-		"./en-ca": 48,
-		"./en-ca.js": 48,
-		"./en-gb": 49,
-		"./en-gb.js": 49,
-		"./en-ie": 50,
-		"./en-ie.js": 50,
-		"./en-nz": 51,
-		"./en-nz.js": 51,
-		"./eo": 52,
-		"./eo.js": 52,
-		"./es": 53,
-		"./es.js": 53,
-		"./et": 54,
-		"./et.js": 54,
-		"./eu": 55,
-		"./eu.js": 55,
-		"./fa": 56,
-		"./fa.js": 56,
-		"./fi": 57,
-		"./fi.js": 57,
-		"./fo": 58,
-		"./fo.js": 58,
-		"./fr": 59,
-		"./fr-ca": 60,
-		"./fr-ca.js": 60,
-		"./fr-ch": 61,
-		"./fr-ch.js": 61,
-		"./fr.js": 59,
-		"./fy": 62,
-		"./fy.js": 62,
-		"./gd": 63,
-		"./gd.js": 63,
-		"./gl": 64,
-		"./gl.js": 64,
-		"./he": 65,
-		"./he.js": 65,
-		"./hi": 66,
-		"./hi.js": 66,
-		"./hr": 67,
-		"./hr.js": 67,
-		"./hu": 68,
-		"./hu.js": 68,
-		"./hy-am": 69,
-		"./hy-am.js": 69,
-		"./id": 70,
-		"./id.js": 70,
-		"./is": 71,
-		"./is.js": 71,
-		"./it": 72,
-		"./it.js": 72,
-		"./ja": 73,
-		"./ja.js": 73,
-		"./jv": 74,
-		"./jv.js": 74,
-		"./ka": 75,
-		"./ka.js": 75,
-		"./kk": 76,
-		"./kk.js": 76,
-		"./km": 77,
-		"./km.js": 77,
-		"./ko": 78,
-		"./ko.js": 78,
-		"./lb": 79,
-		"./lb.js": 79,
-		"./lo": 80,
-		"./lo.js": 80,
-		"./lt": 81,
-		"./lt.js": 81,
-		"./lv": 82,
-		"./lv.js": 82,
-		"./me": 83,
-		"./me.js": 83,
-		"./mk": 84,
-		"./mk.js": 84,
-		"./ml": 85,
-		"./ml.js": 85,
-		"./mr": 86,
-		"./mr.js": 86,
-		"./ms": 87,
-		"./ms-my": 88,
-		"./ms-my.js": 88,
-		"./ms.js": 87,
-		"./my": 89,
-		"./my.js": 89,
-		"./nb": 90,
-		"./nb.js": 90,
-		"./ne": 91,
-		"./ne.js": 91,
-		"./nl": 92,
-		"./nl.js": 92,
-		"./nn": 93,
-		"./nn.js": 93,
-		"./pa-in": 94,
-		"./pa-in.js": 94,
-		"./pl": 95,
-		"./pl.js": 95,
-		"./pt": 96,
-		"./pt-br": 97,
-		"./pt-br.js": 97,
-		"./pt.js": 96,
-		"./ro": 98,
-		"./ro.js": 98,
-		"./ru": 99,
-		"./ru.js": 99,
-		"./se": 100,
-		"./se.js": 100,
-		"./si": 101,
-		"./si.js": 101,
-		"./sk": 102,
-		"./sk.js": 102,
-		"./sl": 103,
-		"./sl.js": 103,
-		"./sq": 104,
-		"./sq.js": 104,
-		"./sr": 105,
-		"./sr-cyrl": 106,
-		"./sr-cyrl.js": 106,
-		"./sr.js": 105,
-		"./sv": 107,
-		"./sv.js": 107,
-		"./sw": 108,
-		"./sw.js": 108,
-		"./ta": 109,
-		"./ta.js": 109,
-		"./te": 110,
-		"./te.js": 110,
-		"./th": 111,
-		"./th.js": 111,
-		"./tl-ph": 112,
-		"./tl-ph.js": 112,
-		"./tlh": 113,
-		"./tlh.js": 113,
-		"./tr": 114,
-		"./tr.js": 114,
-		"./tzl": 115,
-		"./tzl.js": 115,
-		"./tzm": 116,
-		"./tzm-latn": 117,
-		"./tzm-latn.js": 117,
-		"./tzm.js": 116,
-		"./uk": 118,
-		"./uk.js": 118,
-		"./uz": 119,
-		"./uz.js": 119,
-		"./vi": 120,
-		"./vi.js": 120,
-		"./zh-cn": 121,
-		"./zh-cn.js": 121,
-		"./zh-tw": 122,
-		"./zh-tw.js": 122
+		"./af": 20,
+		"./af.js": 20,
+		"./ar": 21,
+		"./ar-ma": 22,
+		"./ar-ma.js": 22,
+		"./ar-sa": 23,
+		"./ar-sa.js": 23,
+		"./ar-tn": 24,
+		"./ar-tn.js": 24,
+		"./ar.js": 21,
+		"./az": 25,
+		"./az.js": 25,
+		"./be": 26,
+		"./be.js": 26,
+		"./bg": 27,
+		"./bg.js": 27,
+		"./bn": 28,
+		"./bn.js": 28,
+		"./bo": 29,
+		"./bo.js": 29,
+		"./br": 30,
+		"./br.js": 30,
+		"./bs": 31,
+		"./bs.js": 31,
+		"./ca": 32,
+		"./ca.js": 32,
+		"./cs": 33,
+		"./cs.js": 33,
+		"./cv": 34,
+		"./cv.js": 34,
+		"./cy": 35,
+		"./cy.js": 35,
+		"./da": 36,
+		"./da.js": 36,
+		"./de": 37,
+		"./de-at": 38,
+		"./de-at.js": 38,
+		"./de.js": 37,
+		"./dv": 39,
+		"./dv.js": 39,
+		"./el": 40,
+		"./el.js": 40,
+		"./en-au": 41,
+		"./en-au.js": 41,
+		"./en-ca": 42,
+		"./en-ca.js": 42,
+		"./en-gb": 43,
+		"./en-gb.js": 43,
+		"./en-ie": 44,
+		"./en-ie.js": 44,
+		"./en-nz": 45,
+		"./en-nz.js": 45,
+		"./eo": 46,
+		"./eo.js": 46,
+		"./es": 47,
+		"./es.js": 47,
+		"./et": 48,
+		"./et.js": 48,
+		"./eu": 49,
+		"./eu.js": 49,
+		"./fa": 50,
+		"./fa.js": 50,
+		"./fi": 51,
+		"./fi.js": 51,
+		"./fo": 52,
+		"./fo.js": 52,
+		"./fr": 53,
+		"./fr-ca": 54,
+		"./fr-ca.js": 54,
+		"./fr-ch": 55,
+		"./fr-ch.js": 55,
+		"./fr.js": 53,
+		"./fy": 56,
+		"./fy.js": 56,
+		"./gd": 57,
+		"./gd.js": 57,
+		"./gl": 58,
+		"./gl.js": 58,
+		"./he": 59,
+		"./he.js": 59,
+		"./hi": 60,
+		"./hi.js": 60,
+		"./hr": 61,
+		"./hr.js": 61,
+		"./hu": 62,
+		"./hu.js": 62,
+		"./hy-am": 63,
+		"./hy-am.js": 63,
+		"./id": 64,
+		"./id.js": 64,
+		"./is": 65,
+		"./is.js": 65,
+		"./it": 66,
+		"./it.js": 66,
+		"./ja": 67,
+		"./ja.js": 67,
+		"./jv": 68,
+		"./jv.js": 68,
+		"./ka": 69,
+		"./ka.js": 69,
+		"./kk": 70,
+		"./kk.js": 70,
+		"./km": 71,
+		"./km.js": 71,
+		"./ko": 72,
+		"./ko.js": 72,
+		"./lb": 73,
+		"./lb.js": 73,
+		"./lo": 74,
+		"./lo.js": 74,
+		"./lt": 75,
+		"./lt.js": 75,
+		"./lv": 76,
+		"./lv.js": 76,
+		"./me": 77,
+		"./me.js": 77,
+		"./mk": 78,
+		"./mk.js": 78,
+		"./ml": 79,
+		"./ml.js": 79,
+		"./mr": 80,
+		"./mr.js": 80,
+		"./ms": 81,
+		"./ms-my": 82,
+		"./ms-my.js": 82,
+		"./ms.js": 81,
+		"./my": 83,
+		"./my.js": 83,
+		"./nb": 84,
+		"./nb.js": 84,
+		"./ne": 85,
+		"./ne.js": 85,
+		"./nl": 86,
+		"./nl.js": 86,
+		"./nn": 87,
+		"./nn.js": 87,
+		"./pa-in": 88,
+		"./pa-in.js": 88,
+		"./pl": 89,
+		"./pl.js": 89,
+		"./pt": 90,
+		"./pt-br": 91,
+		"./pt-br.js": 91,
+		"./pt.js": 90,
+		"./ro": 92,
+		"./ro.js": 92,
+		"./ru": 93,
+		"./ru.js": 93,
+		"./se": 94,
+		"./se.js": 94,
+		"./si": 95,
+		"./si.js": 95,
+		"./sk": 96,
+		"./sk.js": 96,
+		"./sl": 97,
+		"./sl.js": 97,
+		"./sq": 98,
+		"./sq.js": 98,
+		"./sr": 99,
+		"./sr-cyrl": 100,
+		"./sr-cyrl.js": 100,
+		"./sr.js": 99,
+		"./sv": 101,
+		"./sv.js": 101,
+		"./sw": 102,
+		"./sw.js": 102,
+		"./ta": 103,
+		"./ta.js": 103,
+		"./te": 104,
+		"./te.js": 104,
+		"./th": 105,
+		"./th.js": 105,
+		"./tl-ph": 106,
+		"./tl-ph.js": 106,
+		"./tlh": 107,
+		"./tlh.js": 107,
+		"./tr": 108,
+		"./tr.js": 108,
+		"./tzl": 109,
+		"./tzl.js": 109,
+		"./tzm": 110,
+		"./tzm-latn": 111,
+		"./tzm-latn.js": 111,
+		"./tzm.js": 110,
+		"./uk": 112,
+		"./uk.js": 112,
+		"./uz": 113,
+		"./uz.js": 113,
+		"./vi": 114,
+		"./vi.js": 114,
+		"./zh-cn": 115,
+		"./zh-cn.js": 115,
+		"./zh-tw": 116,
+		"./zh-tw.js": 116
 	};
 	function webpackContext(req) {
 		return __webpack_require__(webpackContextResolve(req));
@@ -5215,11 +6872,11 @@
 	};
 	webpackContext.resolve = webpackContextResolve;
 	module.exports = webpackContext;
-	webpackContext.id = 25;
+	webpackContext.id = 19;
 
 
 /***/ },
-/* 26 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -5227,7 +6884,7 @@
 	//! author : Werner Mollentze : https://github.com/wernerm
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -5296,7 +6953,7 @@
 	}));
 
 /***/ },
-/* 27 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -5306,7 +6963,7 @@
 	//! Native plural forms: forabi https://github.com/forabi
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -5436,7 +7093,7 @@
 	}));
 
 /***/ },
-/* 28 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -5445,7 +7102,7 @@
 	//! author : Abdel Said : https://github.com/abdelsaid
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -5499,7 +7156,7 @@
 	}));
 
 /***/ },
-/* 29 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -5507,7 +7164,7 @@
 	//! author : Suhail Alkowaileet : https://github.com/xsoh
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -5606,14 +7263,14 @@
 	}));
 
 /***/ },
-/* 30 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
 	//! locale  : Tunisian Arabic (ar-tn)
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -5667,7 +7324,7 @@
 	}));
 
 /***/ },
-/* 31 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -5675,7 +7332,7 @@
 	//! author : topchiyev : https://github.com/topchiyev
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -5775,7 +7432,7 @@
 	}));
 
 /***/ },
-/* 32 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -5785,7 +7442,7 @@
 	//! Author : Menelion Elensúle : https://github.com/Oire
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -5913,7 +7570,7 @@
 	}));
 
 /***/ },
-/* 33 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -5921,7 +7578,7 @@
 	//! author : Krasen Borisov : https://github.com/kraz
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -6007,7 +7664,7 @@
 	}));
 
 /***/ },
-/* 34 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -6015,7 +7672,7 @@
 	//! author : Kaushik Gandhi : https://github.com/kaushikgandhi
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -6130,7 +7787,7 @@
 	}));
 
 /***/ },
-/* 35 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -6138,7 +7795,7 @@
 	//! author : Thupten N. Chakrishar : https://github.com/vajradog
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -6253,7 +7910,7 @@
 	}));
 
 /***/ },
-/* 36 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -6261,7 +7918,7 @@
 	//! author : Jean-Baptiste Le Duigou : https://github.com/jbleduigou
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -6364,7 +8021,7 @@
 	}));
 
 /***/ },
-/* 37 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -6373,7 +8030,7 @@
 	//! based on (hr) translation by Bojan Marković
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -6509,7 +8166,7 @@
 	}));
 
 /***/ },
-/* 38 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -6517,7 +8174,7 @@
 	//! author : Juan G. Hurtado : https://github.com/juanghurtado
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -6592,7 +8249,7 @@
 	}));
 
 /***/ },
-/* 39 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -6600,7 +8257,7 @@
 	//! author : petrbela : https://github.com/petrbela
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -6767,7 +8424,7 @@
 	}));
 
 /***/ },
-/* 40 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -6775,7 +8432,7 @@
 	//! author : Anatoly Mironov : https://github.com/mirontoli
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -6834,7 +8491,7 @@
 	}));
 
 /***/ },
-/* 41 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -6842,7 +8499,7 @@
 	//! author : Robert Allen
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -6917,7 +8574,7 @@
 	}));
 
 /***/ },
-/* 42 */
+/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -6925,7 +8582,7 @@
 	//! author : Ulrik Nielsen : https://github.com/mrbase
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -6981,7 +8638,7 @@
 	}));
 
 /***/ },
-/* 43 */
+/* 37 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -6991,7 +8648,7 @@
 	//! author : Mikolaj Dadela : https://github.com/mik01aj
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -7061,7 +8718,7 @@
 	}));
 
 /***/ },
-/* 44 */
+/* 38 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -7072,7 +8729,7 @@
 	//! author : Mikolaj Dadela : https://github.com/mik01aj
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -7142,7 +8799,7 @@
 	}));
 
 /***/ },
-/* 45 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -7150,7 +8807,7 @@
 	//! author : Jawish Hameed : https://github.com/jawish
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -7245,7 +8902,7 @@
 	}));
 
 /***/ },
-/* 46 */
+/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -7253,7 +8910,7 @@
 	//! author : Aggelos Karalias : https://github.com/mehiel
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -7347,14 +9004,14 @@
 	}));
 
 /***/ },
-/* 47 */
+/* 41 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
 	//! locale : australian english (en-au)
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -7417,7 +9074,7 @@
 	}));
 
 /***/ },
-/* 48 */
+/* 42 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -7425,7 +9082,7 @@
 	//! author : Jonathan Abourbih : https://github.com/jonbca
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -7484,7 +9141,7 @@
 	}));
 
 /***/ },
-/* 49 */
+/* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -7492,7 +9149,7 @@
 	//! author : Chris Gedrim : https://github.com/chrisgedrim
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -7555,7 +9212,7 @@
 	}));
 
 /***/ },
-/* 50 */
+/* 44 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -7563,7 +9220,7 @@
 	//! author : Chris Cartlidge : https://github.com/chriscartlidge
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -7626,14 +9283,14 @@
 	}));
 
 /***/ },
-/* 51 */
+/* 45 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
 	//! locale : New Zealand english (en-nz)
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -7696,7 +9353,7 @@
 	}));
 
 /***/ },
-/* 52 */
+/* 46 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -7706,7 +9363,7 @@
 	//!          Se ne, bonvolu korekti kaj avizi min por ke mi povas lerni!
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -7773,7 +9430,7 @@
 	}));
 
 /***/ },
-/* 53 */
+/* 47 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -7781,7 +9438,7 @@
 	//! author : Julio Napurí : https://github.com/julionc
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -7856,7 +9513,7 @@
 	}));
 
 /***/ },
-/* 54 */
+/* 48 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -7865,7 +9522,7 @@
 	//! improvements : Illimar Tambek : https://github.com/ragulka
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -7940,7 +9597,7 @@
 	}));
 
 /***/ },
-/* 55 */
+/* 49 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -7948,7 +9605,7 @@
 	//! author : Eneko Illarramendi : https://github.com/eillarra
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -8008,7 +9665,7 @@
 	}));
 
 /***/ },
-/* 56 */
+/* 50 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -8016,7 +9673,7 @@
 	//! author : Ebrahim Byagowi : https://github.com/ebraminio
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -8117,7 +9774,7 @@
 	}));
 
 /***/ },
-/* 57 */
+/* 51 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -8125,7 +9782,7 @@
 	//! author : Tarmo Aidantausta : https://github.com/bleadof
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -8228,7 +9885,7 @@
 	}));
 
 /***/ },
-/* 58 */
+/* 52 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -8236,7 +9893,7 @@
 	//! author : Ragnar Johannesen : https://github.com/ragnar123
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -8292,7 +9949,7 @@
 	}));
 
 /***/ },
-/* 59 */
+/* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -8300,7 +9957,7 @@
 	//! author : John Fischer : https://github.com/jfroffice
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -8358,7 +10015,7 @@
 	}));
 
 /***/ },
-/* 60 */
+/* 54 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -8366,7 +10023,7 @@
 	//! author : Jonathan Abourbih : https://github.com/jonbca
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -8420,7 +10077,7 @@
 	}));
 
 /***/ },
-/* 61 */
+/* 55 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -8428,7 +10085,7 @@
 	//! author : Gaspard Bucher : https://github.com/gaspard
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -8486,7 +10143,7 @@
 	}));
 
 /***/ },
-/* 62 */
+/* 56 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -8494,7 +10151,7 @@
 	//! author : Robin van der Vliet : https://github.com/robin0van0der0v
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -8561,7 +10218,7 @@
 	}));
 
 /***/ },
-/* 63 */
+/* 57 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -8569,7 +10226,7 @@
 	//! author : Jon Ashdown : https://github.com/jonashdown
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -8641,7 +10298,7 @@
 	}));
 
 /***/ },
-/* 64 */
+/* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -8649,7 +10306,7 @@
 	//! author : Juan G. Hurtado : https://github.com/juanghurtado
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -8720,7 +10377,7 @@
 	}));
 
 /***/ },
-/* 65 */
+/* 59 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -8730,7 +10387,7 @@
 	//! author : Tal Ater : https://github.com/TalAter
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -8823,7 +10480,7 @@
 	}));
 
 /***/ },
-/* 66 */
+/* 60 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -8831,7 +10488,7 @@
 	//! author : Mayank Singhal : https://github.com/mayanksinghal
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -8950,7 +10607,7 @@
 	}));
 
 /***/ },
-/* 67 */
+/* 61 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -8958,7 +10615,7 @@
 	//! author : Bojan Marković : https://github.com/bmarkovic
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -9097,7 +10754,7 @@
 	}));
 
 /***/ },
-/* 68 */
+/* 62 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -9105,7 +10762,7 @@
 	//! author : Adam Brunner : https://github.com/adambrunner
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -9210,7 +10867,7 @@
 	}));
 
 /***/ },
-/* 69 */
+/* 63 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -9218,7 +10875,7 @@
 	//! author : Armendarabyan : https://github.com/armendarabyan
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -9309,7 +10966,7 @@
 	}));
 
 /***/ },
-/* 70 */
+/* 64 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -9318,7 +10975,7 @@
 	//! reference: http://id.wikisource.org/wiki/Pedoman_Umum_Ejaan_Bahasa_Indonesia_yang_Disempurnakan
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -9396,7 +11053,7 @@
 	}));
 
 /***/ },
-/* 71 */
+/* 65 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -9404,7 +11061,7 @@
 	//! author : Hinrik Örn Sigurðsson : https://github.com/hinrik
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -9527,7 +11184,7 @@
 	}));
 
 /***/ },
-/* 72 */
+/* 66 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -9536,7 +11193,7 @@
 	//! author: Mattia Larentis: https://github.com/nostalgiaz
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -9601,7 +11258,7 @@
 	}));
 
 /***/ },
-/* 73 */
+/* 67 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -9609,7 +11266,7 @@
 	//! author : LI Long : https://github.com/baryon
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -9681,7 +11338,7 @@
 	}));
 
 /***/ },
-/* 74 */
+/* 68 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -9690,7 +11347,7 @@
 	//! reference: http://jv.wikipedia.org/wiki/Basa_Jawa
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -9768,7 +11425,7 @@
 	}));
 
 /***/ },
-/* 75 */
+/* 69 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -9776,7 +11433,7 @@
 	//! author : Irakli Janiashvili : https://github.com/irakli-janiashvili
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -9861,7 +11518,7 @@
 	}));
 
 /***/ },
-/* 76 */
+/* 70 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -9869,7 +11526,7 @@
 	//! authors : Nurlan Rakhimzhanov : https://github.com/nurlan
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -9952,7 +11609,7 @@
 	}));
 
 /***/ },
-/* 77 */
+/* 71 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -9960,7 +11617,7 @@
 	//! author : Kruy Vanna : https://github.com/kruyvanna
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -10014,7 +11671,7 @@
 	}));
 
 /***/ },
-/* 78 */
+/* 72 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -10026,7 +11683,7 @@
 	//! - Jeeeyul Lee <jeeeyul@gmail.com>
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -10086,7 +11743,7 @@
 	}));
 
 /***/ },
-/* 79 */
+/* 73 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -10094,7 +11751,7 @@
 	//! author : mweimerskirch : https://github.com/mweimerskirch, David Raison : https://github.com/kwisatz
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -10224,7 +11881,7 @@
 	}));
 
 /***/ },
-/* 80 */
+/* 74 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -10232,7 +11889,7 @@
 	//! author : Ryan Hart : https://github.com/ryanhart2
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -10297,7 +11954,7 @@
 	}));
 
 /***/ },
-/* 81 */
+/* 75 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -10305,7 +11962,7 @@
 	//! author : Mindaugas Mozūras : https://github.com/mmozuras
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -10416,7 +12073,7 @@
 	}));
 
 /***/ },
-/* 82 */
+/* 76 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -10425,7 +12082,7 @@
 	//! author : Jānis Elmeris : https://github.com/JanisE
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -10516,7 +12173,7 @@
 	}));
 
 /***/ },
-/* 83 */
+/* 77 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -10524,7 +12181,7 @@
 	//! author : Miodrag Nikač <miodrag@restartit.me> : https://github.com/miodragnikac
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -10629,7 +12286,7 @@
 	}));
 
 /***/ },
-/* 84 */
+/* 78 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -10637,7 +12294,7 @@
 	//! author : Borislav Mickov : https://github.com/B0k0
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -10723,7 +12380,7 @@
 	}));
 
 /***/ },
-/* 85 */
+/* 79 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -10731,7 +12388,7 @@
 	//! author : Floyd Pink : https://github.com/floydpink
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -10807,7 +12464,7 @@
 	}));
 
 /***/ },
-/* 86 */
+/* 80 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -10816,7 +12473,7 @@
 	//! author : Vivek Athalye : https://github.com/vnathalye
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -10969,7 +12626,7 @@
 	}));
 
 /***/ },
-/* 87 */
+/* 81 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -10977,7 +12634,7 @@
 	//! author : Weldan Jamili : https://github.com/weldan
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -11055,7 +12712,7 @@
 	}));
 
 /***/ },
-/* 88 */
+/* 82 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -11063,7 +12720,7 @@
 	//! author : Weldan Jamili : https://github.com/weldan
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -11141,7 +12798,7 @@
 	}));
 
 /***/ },
-/* 89 */
+/* 83 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -11149,7 +12806,7 @@
 	//! author : Squar team, mysquar.com
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -11238,7 +12895,7 @@
 	}));
 
 /***/ },
-/* 90 */
+/* 84 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -11247,7 +12904,7 @@
 	//!           Sigurd Gartmann : https://github.com/sigurdga
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -11303,7 +12960,7 @@
 	}));
 
 /***/ },
-/* 91 */
+/* 85 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -11311,7 +12968,7 @@
 	//! author : suvash : https://github.com/suvash
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -11428,7 +13085,7 @@
 	}));
 
 /***/ },
-/* 92 */
+/* 86 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -11436,7 +13093,7 @@
 	//! author : Joris Röling : https://github.com/jjupiter
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -11503,7 +13160,7 @@
 	}));
 
 /***/ },
-/* 93 */
+/* 87 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -11511,7 +13168,7 @@
 	//! author : https://github.com/mechuwind
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -11567,7 +13224,7 @@
 	}));
 
 /***/ },
-/* 94 */
+/* 88 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -11575,7 +13232,7 @@
 	//! author : Harpreet Singh : https://github.com/harpreetkhalsagtbit
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -11695,7 +13352,7 @@
 	}));
 
 /***/ },
-/* 95 */
+/* 89 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -11703,7 +13360,7 @@
 	//! author : Rafal Hirsz : https://github.com/evoL
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -11804,7 +13461,7 @@
 	}));
 
 /***/ },
-/* 96 */
+/* 90 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -11812,7 +13469,7 @@
 	//! author : Jefferson : https://github.com/jalex79
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -11872,7 +13529,7 @@
 	}));
 
 /***/ },
-/* 97 */
+/* 91 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -11880,7 +13537,7 @@
 	//! author : Caio Ribeiro Pereira : https://github.com/caio-ribeiro-pereira
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -11936,7 +13593,7 @@
 	}));
 
 /***/ },
-/* 98 */
+/* 92 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -11945,7 +13602,7 @@
 	//! author : Valentin Agachi : https://github.com/avaly
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -12014,7 +13671,7 @@
 	}));
 
 /***/ },
-/* 99 */
+/* 93 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -12024,7 +13681,7 @@
 	//! author : Коренберг Марк : https://github.com/socketpair
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -12186,7 +13843,7 @@
 	}));
 
 /***/ },
-/* 100 */
+/* 94 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -12194,7 +13851,7 @@
 	//! authors : Bård Rolstad Henriksen : https://github.com/karamell
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -12251,7 +13908,7 @@
 	}));
 
 /***/ },
-/* 101 */
+/* 95 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -12259,7 +13916,7 @@
 	//! author : Sampath Sitinamaluwa : https://github.com/sampathsris
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -12325,7 +13982,7 @@
 	}));
 
 /***/ },
-/* 102 */
+/* 96 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -12334,7 +13991,7 @@
 	//! based on work of petrbela : https://github.com/petrbela
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -12479,7 +14136,7 @@
 	}));
 
 /***/ },
-/* 103 */
+/* 97 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -12487,7 +14144,7 @@
 	//! author : Robert Sedovšek : https://github.com/sedovsek
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -12643,7 +14300,7 @@
 	}));
 
 /***/ },
-/* 104 */
+/* 98 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -12653,7 +14310,7 @@
 	//! author : Oerd Cukalla : https://github.com/oerd (fixes)
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -12716,7 +14373,7 @@
 	}));
 
 /***/ },
-/* 105 */
+/* 99 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -12724,7 +14381,7 @@
 	//! author : Milan Janačković<milanjanackovic@gmail.com> : https://github.com/milan-j
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -12828,7 +14485,7 @@
 	}));
 
 /***/ },
-/* 106 */
+/* 100 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -12836,7 +14493,7 @@
 	//! author : Milan Janačković<milanjanackovic@gmail.com> : https://github.com/milan-j
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -12940,7 +14597,7 @@
 	}));
 
 /***/ },
-/* 107 */
+/* 101 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -12948,7 +14605,7 @@
 	//! author : Jens Alm : https://github.com/ulmus
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -13011,7 +14668,7 @@
 	}));
 
 /***/ },
-/* 108 */
+/* 102 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -13019,7 +14676,7 @@
 	//! author : Fahad Kassim : https://github.com/fadsel
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -13073,7 +14730,7 @@
 	}));
 
 /***/ },
-/* 109 */
+/* 103 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -13081,7 +14738,7 @@
 	//! author : Arjunkumar Krishnamoorthy : https://github.com/tk120404
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -13206,7 +14863,7 @@
 	}));
 
 /***/ },
-/* 110 */
+/* 104 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -13214,7 +14871,7 @@
 	//! author : Krishna Chaitanya Thota : https://github.com/kcthota
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -13298,7 +14955,7 @@
 	}));
 
 /***/ },
-/* 111 */
+/* 105 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -13306,7 +14963,7 @@
 	//! author : Kridsada Thanabulpong : https://github.com/sirn
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -13367,7 +15024,7 @@
 	}));
 
 /***/ },
-/* 112 */
+/* 106 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -13375,7 +15032,7 @@
 	//! author : Dan Hagman
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -13433,7 +15090,7 @@
 	}));
 
 /***/ },
-/* 113 */
+/* 107 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -13441,7 +15098,7 @@
 	//! author : Dominika Kruk : https://github.com/amaranthrose
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -13556,7 +15213,7 @@
 	}));
 
 /***/ },
-/* 114 */
+/* 108 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -13565,7 +15222,7 @@
 	//!           Burak Yiğit Kaya: https://github.com/BYK
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -13650,7 +15307,7 @@
 	}));
 
 /***/ },
-/* 115 */
+/* 109 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -13658,7 +15315,7 @@
 	//! author : Robin van der Vliet : https://github.com/robin0van0der0v with the help of Iustì Canun
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -13745,7 +15402,7 @@
 	}));
 
 /***/ },
-/* 116 */
+/* 110 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -13753,7 +15410,7 @@
 	//! author : Abdel Said : https://github.com/abdelsaid
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -13807,7 +15464,7 @@
 	}));
 
 /***/ },
-/* 117 */
+/* 111 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -13815,7 +15472,7 @@
 	//! author : Abdel Said : https://github.com/abdelsaid
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -13869,7 +15526,7 @@
 	}));
 
 /***/ },
-/* 118 */
+/* 112 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -13878,7 +15535,7 @@
 	//! Author : Menelion Elensúle : https://github.com/Oire
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -14019,7 +15676,7 @@
 	}));
 
 /***/ },
-/* 119 */
+/* 113 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -14027,7 +15684,7 @@
 	//! author : Sardor Muminov : https://github.com/muminoff
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -14081,7 +15738,7 @@
 	}));
 
 /***/ },
-/* 120 */
+/* 114 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -14089,7 +15746,7 @@
 	//! author : Bang Nguyen : https://github.com/bangnk
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -14162,7 +15819,7 @@
 	}));
 
 /***/ },
-/* 121 */
+/* 115 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -14171,7 +15828,7 @@
 	//! author : Zeno Zeng : https://github.com/zenozeng
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -14293,7 +15950,7 @@
 	}));
 
 /***/ },
-/* 122 */
+/* 116 */
 /***/ function(module, exports, __webpack_require__) {
 
 	//! moment.js locale configuration
@@ -14301,7 +15958,7 @@
 	//! author : Ben : https://github.com/ben-lin
 	
 	;(function (global, factory) {
-	    true ? factory(__webpack_require__(23)) :
+	    true ? factory(__webpack_require__(17)) :
 	   typeof define === 'function' && define.amd ? define(['moment'], factory) :
 	   factory(global.moment)
 	}(this, function (moment) { 'use strict';
@@ -14398,10 +16055,188 @@
 	}));
 
 /***/ },
+/* 117 */
+/***/ function(module, exports) {
+
+	module.exports = "<br>\n<h3 class=\"col-lg-12\">Characters</h3>\n<hr>\n<div class=\"col-md-12\">\n    <div>\n        <div>\n            <div class=\"col-md-10\" style=\"padding:20px;padding-left:50px\">\n                    <div ng-repeat=\"c in entry.values.characters\">\n                        <div class=\"row\">\n                            <a href=\"#/charactersummary/show/{{c.characterBase.membershipType}}-{{c.characterBase.membershipId}}-{{c.characterBase.characterId}}\">\n                                <div style=\"background-image: url('http://www.bungie.net{{ c.backgroundPath }}'); height:96px; width: 474px;\">\n                                    <div style=\"pull-left; float:left;background-image: url(http://www.bungie.net{{ c.emblemPath }}); height:96px; width: 96px;\" ></div>\n                                    <div class=\"pull-left\" style=\"margin:10px;\">                                    <h4 style=\"color:white;\">{{ c.class.className }}</h4>             <p style=\"color:white;\">{{ c.race.raceName }} {{ c.gender.genderName }}</p></div>                                                                 <div class=\"pull-right\" style=\"margin:20px\">                                   <p style=\"color:white;\">Level {{ c.characterBase.level}}</p>                             <p style=\"color:yellow;font-size:1.2em;font-weight:bold;\">{{ c.characterBase.powerLevel }}</p>                                                         </div>                                                              \n                                </div>\n                            </a>\n                            <div style=\"margin:20px;\" ng-if=\"c.characterBase.currentActivityHash!='0'\"><ma-filtered-list-button class=\"btn btn-success\" entity-name=\"carnagereport\" filter=\"{activityid: c.characterBase.currentActivityHash}\" label=\"Current Activity\" size=\"sm\"></ma-filtered-list-button></div>\n                        </div>\n                        <br>\n                    </div>\n            </div>\n        </div>\n    </div>\n</div>\n\n\n";
+
+/***/ },
+/* 118 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	var _moment = __webpack_require__(17);
+	
+	var _moment2 = _interopRequireDefault(_moment);
+	
+	var _templateHtml = __webpack_require__(119);
+	
+	var _templateHtml2 = _interopRequireDefault(_templateHtml);
+	
+	var fromNow = function fromNow(v) {
+	    return (0, _moment2['default'])(v).fromNow();
+	};
+	
+	exports['default'] = function (nga, admin) {
+	    var charactersummary = admin.getEntity('charactersummary');
+	
+	    charactersummary.identifier(nga.field('uniqueId'));
+	
+	    //var platId,memId,charId;
+	
+	    charactersummary.url(function (entityName, viewType, identifierValue, identifierName) {
+	        var arr = identifierValue.split('-');
+	
+	        return arr[0] + '/Account/' + arr[1] + '/Character/' + arr[2] + '/';
+	        //return 'platformid/Account/memberid/Character/characterid/'+ identifierValue;
+	    });
+	
+	    charactersummary.readOnly();
+	
+	    charactersummary.showView().template(_templateHtml2['default']).title('<h3>Character Summary</h3>').actions(['back']).fields([nga.field('inventory', 'referenced_list').targetEntity(admin.getEntity('inventory')).targetReferenceField('unique_id').targetFields([nga.field('unique_id')]),
+	    //.remoteComplete(true, {refreshDelay: 5000}),
+	    nga.field('backgroundPath'), nga.field('emblemPath'), nga.field('grimoireScore'), nga.field('characterBase.class.className'), nga.field('characterBase.race.raceName'), nga.field('characterBase.gender.genderName'), nga.field('characterLevel'), nga.field('characterBase.powerLevel'), nga.field('characterBase.minutesPlayedTotal'), nga.field('characterBase.currentActivityHash'), nga.field('characterBase.stats.STAT_DEFENSE.value'), nga.field('characterBase.stats.STAT_DEFENSE.definition.statDescription'), nga.field('characterBase.stats.STAT_INTELLECT.value'), nga.field('characterBase.stats.STAT_INTELLECT.definition.statDescription'), nga.field('characterBase.stats.STAT_DISCIPLINE.value'), nga.field('characterBase.stats.STAT_DISCIPLINE.definition.statDescription'), nga.field('characterBase.stats.STAT_STRENGTH.value'), nga.field('characterBase.stats.STAT_STRENGTH.definition.statDescription'), nga.field('characterBase.stats.STAT_LIGHT.value'), nga.field('characterBase.stats.STAT_LIGHT.definition.statDescription'), nga.field('characterBase.stats.STAT_ARMOR.value'), nga.field('characterBase.stats.STAT_ARMOR.definition.statDescription'), nga.field('characterBase.stats.STAT_AGILITY.value'), nga.field('characterBase.stats.STAT_AGILITY.definition.statDescription'), nga.field('characterBase.stats.STAT_RECOVERY.value'), nga.field('characterBase.stats.STAT_RECOVERY.definition.statDescription'), nga.field('characterBase.stats.STAT_OPTICS.value'), nga.field('characterBase.stats.STAT_OPTICS.definition.statDescription'), nga.field('characterBase.stats.STAT_ATTACK_SPEED.value'), nga.field('characterBase.stats.STAT_ATTACK_SPEED.definition.statDescription'), nga.field('characterBase.stats.STAT_DAMAGE_REDUCTION.value'), nga.field('characterBase.stats.STAT_DAMAGE_REDUCTION.definition.statDescription'), nga.field('characterBase.stats.STAT_ATTACK_EFFICIENCY.value'), nga.field('characterBase.stats.STAT_ATTACK_EFFICIENCY.definition.statDescription'), nga.field('characterBase.stats.STAT_ATTACK_ENERGY.value'), nga.field('characterBase.stats.STAT_ATTACK_ENERGY.definition.statDescription'), nga.field('characterBase.peerView.equipment', 'embedded_list').label('').targetFields([nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values[\'definition.icon\'] }}" height="42" width="42" />'), nga.field('primaryStat').label('Light'), nga.field('definition.itemName').label('Name'), nga.field('definition.itemTypeName').label('Type')]).sortField('primaryStat').sortDir('DESC')]);
+	
+	    return charactersummary;
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 119 */
+/***/ function(module, exports) {
+
+	module.exports = "<br>\n<h3 class=\"col-lg-12\">Character Summary</h3>\n<hr>\n\n<div class=\"col-lg-12\">\n    <div class=\"row\">\n        <div class=\"col-md-8 pull-left\" style=\"background-image: url('http://www.bungie.net{{ ::entry.values.backgroundPath }}'); height:96px; width: 474px;\">\n            <img class=\"pull-left\" src=\"http://www.bungie.net{{ ::entry.values.emblemPath }}\" />                                 <div class=\"pull-left\" style=\"margin:10px;\">                                                                     <h4 style=\"color:white;\">{{ ::entry.values['characterBase.class.className'] }}</h4>                           <p style=\"color:white;\">{{ ::entry.values['characterBase.race.raceName'] }} {{ ::entry.values['characterBase.gender.genderName'] }}</p>                                                           </div>                                                                                                       <div class=\"pull-right\" style=\"margin:20px\">                                                                       <p style=\"color:white;\">Level {{ ::entry.values.characterLevel}}</p>                                           <p style=\"color:yellow;font-size:1.2em;font-weight:bold;\">{{ ::entry.values['characterBase.powerLevel'] }}</p>                                                                   </div>                                                                                              </div> \n            <div class=\"col-md-4 pull-right\">\n                <div class=\"panel panel-default\" style=\"margin:10px;\">\n                    <div class=\"panel-body\" style=\"text-align:center\">\n                        <div ng-if=\"entry.values['characterBase.currentActivityHash']!='0'\"><ma-filtered-list-button class=\"btn btn-success\" entity-name=\"carnagereport\" filter=\"{activityid: entry.values['characterBase.currentActivityHash']}\" label=\"Current Activity\" size=\"sm\"></ma-filtered-list-button></div><br>\n                        <div><ma-filtered-list-button entity-name=\"activities\" filter=\"{platformid: entry.values['characterBase.membershipType'],memberid:entry.values['characterBase.membershipId'],characterid: entry.values['characterBase.characterId']}\" label=\"All Activities\" size=\"sm\"></ma-filtered-list-button></div><br>\n                        <div><ma-filtered-list-button entity-name=\"progression\" filter=\"{platformid: entry.values['characterBase.membershipType'],memberid:entry.values['characterBase.membershipId'],characterid: entry.values['characterBase.characterId']}\" label=\"Progression\" size=\"sm\"></ma-filtered-list-button></div>\n                    </div>\n                </div>\n            </div>\n    </div>\n    \n</div>\n<hr>\n<style>label{display:none;}.show-value{width:100%;}</style>\n<div class=\"col-md-8\">\n    <div class=\"row\">\n    <h4 class=\"pull-left\" style=\"margin-left:25px\">Equipped Items:</h4>\n        <ma-filtered-list-button class=\"pull-right\" style=\"margin-right:25px\" entity-name=\"inventory\" filter=\"{platformid: entry.values['characterBase.membershipType'],memberid:entry.values['characterBase.membershipId'],characterid: entry.values['characterBase.characterId']}\" label=\"Equipment Details\" size=\"sm\"></ma-filtered-list-button>'\n    </div>  \n    <div class=\"panel panel-default\">\n        <div class=\"panel-body\">\n            <div ng-repeat=\"field in ::showController.fields.slice(showController.fields.length-1,showController.fields.length); track by $index\" compile=\"::field.getTemplateValueWithLabel(entry)\">\n                <ma-show-item field=\"::field\" entry=\"::entry\" entity=\"::showController.entity\" datastore=\"::showController.dataStore\"></ma-show-item>\n            </div>\n        </div>\n    </div>\n</div>\n<div class=\"col-md-4\">\n    <div class=\"row\">\n    <h4 class=\"pull-left\" style=\"margin-left:25px\">Stats:</h4>\n        <ma-filtered-list-button style=\"margin-right:25px\" class=\"pull-right\" entity-name=\"stats\" filter=\"{platformid: entry.values['characterBase.membershipType'],memberid:entry.values['characterBase.membershipId'],characterid: entry.values['characterBase.characterId']}\" label=\"More Stats\" size=\"sm\"></ma-filtered-list-button>'\n    </div>    \n    <div class=\"panel panel-default\">\n        <div class=\"panel-body\">\n            <br><br>\n            <p><span class=\"col-sm-8\">Minutes Played:</span><span>{{ ::entry.values['characterBase.minutesPlayedTotal'] }}</span></p>\n            <p><span class=\"col-sm-8\">Defense:</span><span>{{ ::entry.values['characterBase.stats.STAT_DEFENSE.value'] }}</span></p>\n            <p><span class=\"col-sm-8\">Intellect:</span><span>{{ ::entry.values['characterBase.stats.STAT_INTELLECT.value'] }}</span></p>\n            <p><span class=\"col-sm-8\">Discipline:</span><span>{{ ::entry.values['characterBase.stats.STAT_DISCIPLINE.value'] }}</span></p>\n            <p><span class=\"col-sm-8\">Strength:</span><span>{{ ::entry.values['characterBase.stats.STAT_STRENGTH.value'] }}</span></p>\n            <p><span class=\"col-sm-8\">Light:</span><span>{{ ::entry.values['characterBase.stats.STAT_LIGHT.value'] }}</span></p>\n            <p><span class=\"col-sm-8\">Armor:</span><span>{{ ::entry.values['characterBase.stats.STAT_ARMOR.value'] }}</span></p>\n            <p><span class=\"col-sm-8\">Agility:</span><span>{{ ::entry.values['characterBase.stats.STAT_AGILITY.value'] }}</span></p>\n            <p><span class=\"col-sm-8\">Recovery:</span><span>{{ ::entry.values['characterBase.stats.STAT_RECOVERY.value'] }}</span></p>\n            <p><span class=\"col-sm-8\">Optics:</span><span>{{ ::entry.values['characterBase.stats.STAT_OPTICS.value'] }}</span></p>\n            <p><span class=\"col-sm-8\">Atack Speed:</span><span>{{ ::entry.values['characterBase.stats.STAT_ATTACK_SPEED.value'] }}</span></p>\n            <p><span class=\"col-sm-8\">Damage Reduction:</span><span>{{ ::entry.values['characterBase.stats.STAT_DAMAGE_REDUCTION.value'] }}</span></p>\n            <p><span class=\"col-sm-8\">Attack Efficiency:</span><span>{{ ::entry.values['characterBase.stats.STAT_ATTACK_EFFICIENCY.value'] }}</span></p>\n            <p><span class=\"col-sm-8\">Attack Energy:</span><span>{{ ::entry.values['characterBase.stats.STAT_ATTACK_ENERGY.value'] }}</span></p>\n        </div>\n    </div>\n</div>";
+
+/***/ },
+/* 120 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var inventory = admin.getEntity('inventory');
+	
+	    inventory.identifier(nga.field('itemHash'));
+	
+	    inventory.url(function (entityName, viewType, identifierValue, identifierName) {
+	        if (identifierValue) {
+	            var arr = identifierValue.split('-');
+	            return arr[0] + '/Account/' + arr[1] + '/Character/' + arr[2] + '/Inventory/' + arr[3] + '/';
+	        } else {
+	            return 'platformid/Account/memberid/Character/characterid/Inventory/';
+	        }
+	    });
+	
+	    inventory.readOnly();
+	
+	    inventory.listView().title('Inventory').fields([nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values[\'definition.icon\'] }}" height="48" width="48" />'),
+	    //nga.field('itemHash').label('itemHash'),
+	    nga.field('primaryStat.value').label('Light'), nga.field('definition.itemName').label('Name'), nga.field('definition.tierTypeName').label('Tier'), nga.field('definition.itemTypeName').label('Type'), nga.field('', 'template').label('').template('<span class="pull-right"><a class="btn btn-default btn-xs" href="#/inventory/show/{{entry.values.currentPlatformId}}-{{entry.values.currentMemberId}}-{{entry.values.currentCharacterId}}-{{entry.values.itemInstanceId}}"><span class="glyphicon glyphicon-eye-open"></span>&nbsp;Details</a>')]).actions(['back', 'export']).batchActions([]);
+	
+	    inventory.showView().title('Item Detail').actions(['back']).fields([nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values[\'definition.icon\'] }}" height="96" width="96" />'), nga.field('definition.itemName').label('Name'), nga.field('definition.itemDescription').label('Description'), nga.field('primaryStat.value').label('Light'), nga.field('perks', 'embedded_list').label('Perks').targetFields([nga.field('').label('').template('<img style="background-color:gray" src="https://www.bungie.net{{ entry.values.iconPath }}" height="48" width="48" />'), nga.field('definition.displayName').label('Name'), nga.field('definition.displayDescription').label('Description')])]);
+	
+	    return inventory;
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 121 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var activities = admin.getEntity('activities');
+	
+	    activities.identifier(nga.field('activityHash'));
+	
+	    activities.url(function (entityName, viewType, identifierValue, identifierName) {
+	        return 'platformid/Account/memberid/Character/characterid/Activities/';
+	    });
+	
+	    activities.listView().title('Activities').fields([nga.field('definition.activityName').label('Name'), nga.field('definition.activityDescription').label('Description'), nga.field('isCompleted').label('Active'), nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="carnagereport" filter="{ activityid: entry.values.activityHash }" label="Carnage" size="sm"></ma-filtered-list-button>')]).perPage(500).actions(['back']).batchActions([]);
+	
+	    return activities;
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 122 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var carnagereport = admin.getEntity('carnagereport');
+	
+	    carnagereport.identifier(nga.field('entryid'));
+	
+	    carnagereport.url(function (entityName, viewType, identifierValue, identifierName) {
+	        return 'Stats/PostGameCarnageReport/activityid';
+	    });
+	
+	    carnagereport.listView().title('Carnage Report').fields([nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values[\'player.destinyUserInfo.iconPath\'] }}" width="48" height="48" />'),
+	    //nga.field('characterId'),
+	    nga.field('player.characterLevel').label('Level'), nga.field('player.characterClass').label('Class'), nga.field('player.destinyUserInfo.displayName').label('Name'), nga.field('values.assists.basic.displayValue').label('Assists'), nga.field('values.completed.basic.displayValue').label('Completed'), nga.field('values.deaths.basic.displayValue').label('Deaths'), nga.field('values.kills.basic.displayValue').label('Kills'), nga.field('values.killsDeathsRatio.basic.displayValue').label('K/D'), nga.field('values.killsDeathsAssists.basic.displayValue').label('K/D/A'), nga.field('values.activityDurationSeconds.basic.displayValue').label('Duration'), nga.field('', 'template').label('').template('<span class="pull-right"><a class="btn btn-default btn-xs" href="#/charactersummary/show/{{entry.values[\'player.destinyUserInfo.membershipType\']}}-{{entry.values[\'player.destinyUserInfo.membershipId\']}}-{{entry.values[\'characterId\']}}"><span class="glyphicon glyphicon-eye-open"></span>&nbsp;Character</a>')]).batchActions([]).perPage(100).actions(['back']);
+	
+	    return carnagereport;
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
 /* 123 */
 /***/ function(module, exports) {
 
-	module.exports = "<div class=\"navbar-header\">\n    <button type=\"button\" class=\"navbar-toggle\" ng-click=\"isCollapsed = !isCollapsed\">\n        <span class=\"icon-bar\"></span>\n        <span class=\"icon-bar\"></span>\n        <span class=\"icon-bar\"></span>\n    </button>\n    <a class=\"navbar-brand\" href=\"#\" ng-click=\"appController.displayHome()\">ng-admin-destiny</a>\n</div>\n<ul class=\"nav navbar-top-links navbar-right hidden-xs\">\n    <li>\n        <a href=\"https://github.com/mapper43/ng-admin-destiny\">\n            <i class=\"fa fa-github fa-lg\"></i>&nbsp;Source\n        </a>\n    </li>\n    <!-- li uib-dropdown>\n        <a uib-dropdown-toggle href=\"#\" aria-expanded=\"true\" ng-controller=\"username\">\n            <i class=\"fa fa-user fa-lg\"></i>&nbsp;{{ username }}&nbsp;<i class=\"fa fa-caret-down\"></i>\n        </a>\n        <ul class=\"dropdown-menu dropdown-user\" role=\"menu\">\n            <li><a href=\"#\" onclick=\"logout()\"><i class=\"fa fa-sign-out fa-fw\"></i> Logout</a></li>\n        </ul>\n    </li -->\n</ul>\n";
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var stats = admin.getEntity('stats');
+	
+	    stats.identifier(nga.field('keyval'));
+	
+	    stats.url(function (entityName, viewType, identifierValue, identifierName) {
+	        return 'Stats/platformid/memberid/characterid/';
+	    });
+	
+	    stats.listView().title('Stats').fields([nga.field('keyval').label('Name'), nga.field('statsval.allTime.winLossRatio.basic.displayValue').label('Win/Loss'), nga.field('statsval.allTime.longestKillSpree.basic.displayValue').label('Longest Kill Spree'), nga.field('statsval.allTime.longestSingleLife.basic.displayValue').label('Longest Life'), nga.field('statsval.allTime.weaponBestType.basic.displayValue').label('Best Weapon'), nga.field('statsval.allTime.abilityKills.basic.value').label('Ability Kills'), nga.field('statsval.allTime.weaponKillsAutoRifle.basic.value').label('Auto Rifle'), nga.field('statsval.allTime.weaponKillsSuper.basic.value').label('Super'), nga.field('statsval.allTime.weaponKillsSword.basic.value').label('Sword'), nga.field('statsval.allTime.weaponKillsSideArm.basic.value').label('Side Arm'), nga.field('statsval.allTime.weaponKillsSniper.basic.value').label('Sniper'),
+	    //nga.field('statsval.allTime.weaponKillsSubmachinegun.basic.value').label('Submachine Gun'),
+	    nga.field('statsval.allTime.weaponKillsMachinegun.basic.value').label('Machine Gun'), nga.field('statsval.allTime.weaponKillsShotgun.basic.value').label('Shotgun'), nga.field('statsval.allTime.weaponKillsRelic.basic.value').label('Relic'), nga.field('statsval.allTime.weaponKillsScoutRifle.basic.value').label('Scout Rifle'), nga.field('statsval.allTime.weaponKillsPulseRifle.basic.value').label('Pulse Rifle')]).batchActions([]).perPage(200).actions(['back']);
+	
+	    return stats;
+	};
+	
+	module.exports = exports['default'];
 
 /***/ },
 /* 124 */
@@ -14415,15 +16250,590 @@
 	
 	exports['default'] = function (nga, admin) {
 	
-	    var myAccountMenu = nga.menu(admin.getEntity('myaccount')).title('My Account').icon('<span class="fa fa-user fa-fw"></span>');
+	    var triumphs = admin.getEntity('triumphs');
 	
-	    return nga.menu().addChild(nga.menu().title('Current Activities').addChild(nga.menu().title('Nightfall').link("/nightfall/show/")).addChild(nga.menu().title('Heroic Strike').link("/heroicstrike/show/")).addChild(nga.menu().title('Arena').link("/arena/list")).addChild(nga.menu().title('Daily Chapter').link("/dailychapter/show/")).addChild(nga.menu().title('Daily Crucible').link("/dailycrucible/show/")).addChild(nga.menu().title('Arms Day').link("/armsday/show/")).addChild(nga.menu().title('Weekly Crucible').link("/weeklycrucible/show/")).addChild(nga.menu().title('Available Bounties').link("/availablebounties/show/"))).addChild(nga.menu(admin.getEntity('guardians')).title('Guardian Search').icon('<span class="fa fa-users fa-fw"></span>')).addChild(myAccountMenu).addChild(nga.menu().title('All Items by Category').addChild(nga.menu().title('Primary Weapons').link("/items/list?search=%7B%22categories%22:%221%22%7D")).addChild(nga.menu().title('Currency').link("/items/list?search=%7B%22categories%22:%2218%22%7D")).addChild(nga.menu().title('Armor').link("/items/list?search=%7B%22categories%22:%2220%22%7D")).addChild(nga.menu().title('Warlock Class').link("/items/list?search=%7B%22categories%22:%2221%22%7D")).addChild(nga.menu().title('Titan Class').link("/items/list?search=%7B%22categories%22:%2222%22%7D")).addChild(nga.menu().title('Hunter Class').link("/items/list?search=%7B%22categories%22:%2223%22%7D")).addChild(nga.menu().title('Crucible').link("/items/list?search=%7B%22categories%22:%2228%22%7D")).addChild(nga.menu().title('Material').link("/items/list?search=%7B%22categories%22:%2240%22%7D")).addChild(nga.menu().title('Shader').link("/items/list?search=%7B%22categories%22:%2241%22%7D")).addChild(nga.menu().title('Ship').link("/items/list?search=%7B%22categories%22:%2242%22%7D")).addChild(nga.menu().title('Vehicle').link("/items/list?search=%7B%22categories%22:%2243%22%7D")).addChild(nga.menu().title('Emote').link("/items/list?search=%7B%22categories%22:%2244%22%7D")).addChild(nga.menu().title('Chest Armor').link("/items/list?search=%7B%22categories%22:%2247%22%7D")).addChild(nga.menu().title('Build').link("/items/list?search=%7B%22categories%22:%2250%22%7D")).addChild(nga.menu().title('Inventory').link("/items/list?search=%7B%22categories%22:%2252%22%7D")));
+	    triumphs.identifier(nga.field('triumphSetHash'));
+	
+	    triumphs.url(function (entityName, viewType, identifierValue, identifierName) {
+	        return 'platformid/Account/memberid/Triumphs/';
+	    });
+	
+	    triumphs.listView().title('Triumphs').fields([nga.field('definition.title').label('Title'), nga.field('definition.incompleteDetails').label('Details').template('<div style="width:200px;"> {{ value }}" <div/>'), nga.field('triumphs', 'embedded_list').label('Triumphs').targetFields([nga.field('definition.iconPath').label('').template('<img style="width:21px;height:21px;background-color:darkgray;" src="https://www.bungie.net{{ value }}" />'), nga.field('definition.title').label('Title'), nga.field('definition.hasProgress').label('Progress'), nga.field('complete').label('Complete')])]).actions(['back']).batchActions([]);
+	
+	    return triumphs;
 	};
 	
 	module.exports = exports['default'];
 
 /***/ },
 /* 125 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var progression = admin.getEntity('progression');
+	
+	    progression.identifier(nga.field('progressionHash'));
+	
+	    progression.url(function (entityName, viewType, identifierValue, identifierName) {
+	        if (identifierValue) return 'platformid/Account/memberid/Character/characterid/Progression/' + identifierValue;else return 'platformid/Account/memberid/Character/characterid/Progression/';
+	    });
+	
+	    progression.listView().title('Progression').fields([
+	    //nga.field('definition.icon').label('').template('<img src="http://www.bungie.net{{ value }}" style="background-color:darkgray;" height="42" width="42" />'),
+	    nga.field('definition.name').label('Name'), nga.field('currentProgress').label('Progress'), nga.field('level').label('Level')]).perPage(100).batchActions([]);
+	
+	    return progression;
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 126 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var items = admin.getEntity('items');
+	
+	    items.identifier(nga.field('itemHash'));
+	
+	    items.url(function (entityName, viewType, identifierValue, identifierName) {
+	        if (identifierValue) return 'Manifest/6/' + identifierValue + '/';else return 'Explorer/Items/';
+	    });
+	
+	    items.readOnly();
+	
+	    items.listView().title('Items').fields([nga.field('icon').label('').template('<img src="http://www.bungie.net{{ value }}" height="48" width="48" />'), nga.field('itemName').label('Name'), nga.field('itemTypeName').label('Type'), nga.field('tierTypeName').label('Tier'), nga.field('', 'template').label('').template('<span class="pull-right"><a class="btn btn-default btn-xs" href="#/items/show/{{entry.values.itemHash}}"><span class="glyphicon glyphicon-eye-open"></span>&nbsp;Details</a>')]).perPage(50).filters([nga.field('categories')]).actions(['back', 'export']).sortDir('ASC').sortField('itemName').batchActions([]);
+	
+	    items.showView().title('Item Detail').actions(['back']).fields([nga.field('icon').label('').template('<img src="http://www.bungie.net{{ value }}" height="96" width="96" />'), nga.field('itemName').label('Name'), nga.field('itemDescription').label('Description'), nga.field('itemTypeName').label('Type'), nga.field('tierTypeName').label('Tier')]);
+	
+	    return items;
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 127 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var nightfall = admin.getEntity('nightfall');
+	
+	    nightfall.identifier(nga.field('activityHash'));
+	
+	    nightfall.url(function (entityName, viewType, identifierValue, identifierName) {
+	        return 'advisors/';
+	    });
+	
+	    nightfall.readOnly();
+	
+	    nightfall.showView().title('Nightfall').actions(['back']).fields([nga.field('').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ entry.values.iconPath }}" height="84" width="84" />'), nga.field('definition.activityName').label('Name'), nga.field('definition.activityDescription').label('Description'), nga.field('definition.minParty').label('Min Party'), nga.field('definition.maxParty').label('Max Party'), nga.field('definition.rewards', 'embedded_list').label('Rewards').targetFields([nga.field('definition.icon').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="42" width="42" />'), nga.field('definition.itemName').label('Name'), nga.field('definition.tierTypeName').label('Tier'), nga.field('definition.value').label('Value')])]);
+	
+	    //nga.field('').label('all').template('<div> {{ entry.values }}</div>'),
+	    return nightfall;
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 128 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var heroicstrike = admin.getEntity('heroicstrike');
+	
+	    heroicstrike.identifier(nga.field('activityHash'));
+	
+	    heroicstrike.url(function (entityName, viewType, identifierValue, identifierName) {
+	        return 'advisors/';
+	    });
+	
+	    heroicstrike.readOnly();
+	
+	    heroicstrike.showView().title('Heroic Strike').actions(['back']).fields([nga.field('').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ entry.values.iconPath }}" height="84" width="84" />'), nga.field('definition.activityName').label('Name'), nga.field('definition.activityDescription').label('Description'), nga.field('definition.minParty').label('Min Party'), nga.field('definition.maxParty').label('Max Party'), nga.field('definition.rewards', 'embedded_list').label('Rewards').targetFields([nga.field('definition.icon').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="42" width="42" />'), nga.field('definition.itemName').label('Name'), nga.field('definition.tierTypeName').label('Tier'), nga.field('definition.value').label('Value')])]);
+	
+	    //nga.field('').label('all').template('<div> {{ entry.values }}</div>'),
+	    return heroicstrike;
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 129 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var dailychapter = admin.getEntity('dailychapter');
+	
+	    dailychapter.identifier(nga.field('activityHash'));
+	
+	    dailychapter.url(function (entityName, viewType, identifierValue, identifierName) {
+	        return 'advisors/';
+	    });
+	
+	    dailychapter.readOnly();
+	
+	    dailychapter.showView().title('Daily Chapter').actions(['back']).fields([nga.field('').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ entry.values.iconPath }}" height="84" width="84" />'), nga.field('definition.activityName').label('Name'), nga.field('definition.activityDescription').label('Description'), nga.field('definition.minParty').label('Min Party'), nga.field('definition.maxParty').label('Max Party'), nga.field('definition.rewards', 'embedded_list').label('Rewards').targetFields([nga.field('definition.icon').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="42" width="42" />'), nga.field('definition.itemName').label('Name'), nga.field('definition.tierTypeName').label('Tier'), nga.field('definition.value').label('Value')])]);
+	
+	    //nga.field('').label('all').template('<div> {{ entry.values }}</div>'),
+	    return dailychapter;
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 130 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var dailycrucible = admin.getEntity('dailycrucible');
+	
+	    dailycrucible.identifier(nga.field('activityHash'));
+	
+	    dailycrucible.url(function (entityName, viewType, identifierValue, identifierName) {
+	        return 'advisors/';
+	    });
+	
+	    dailycrucible.readOnly();
+	
+	    dailycrucible.showView().title('Daily Crucible').actions(['back']).fields([nga.field('').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ entry.values.iconPath }}" height="84" width="84" />'), nga.field('definition.activityName').label('Name'), nga.field('definition.activityDescription').label('Description'), nga.field('definition.minParty').label('Min Party'), nga.field('definition.maxParty').label('Max Party'), nga.field('definition.rewards', 'embedded_list').label('Rewards').targetFields([nga.field('definition.icon').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="42" width="42" />'), nga.field('definition.itemName').label('Name'), nga.field('definition.tierTypeName').label('Tier'), nga.field('definition.value').label('Value')])]);
+	
+	    //nga.field('').label('all').template('<div> {{ entry.values }}</div>'),
+	    return dailycrucible;
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 131 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var weeklycrucible = admin.getEntity('weeklycrucible');
+	
+	    weeklycrucible.identifier(nga.field('activityHash'));
+	
+	    weeklycrucible.url(function (entityName, viewType, identifierValue, identifierName) {
+	        return 'advisors/';
+	    });
+	
+	    weeklycrucible.readOnly();
+	
+	    weeklycrucible.showView().title('Weekly Crucible').actions(['back']).fields([nga.field('definition.releaseIcon').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="84" width="84" />'), nga.field('definition.activityName').label('Name'), nga.field('definition.activityDescription').label('Description')]);
+	
+	    //nga.field('').label('all').template('<div> {{ entry.values }}</div>'),
+	    return weeklycrucible;
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 132 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var arena = admin.getEntity('arena');
+	
+	    arena.identifier(nga.field('activityHash'));
+	
+	    arena.url(function (entityName, viewType, identifierValue, identifierName) {
+	        return 'advisors/';
+	    });
+	
+	    arena.readOnly();
+	
+	    arena.listView().title('Arena').actions(['back']).fields([nga.field('iconPath').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="42" width="42" />'),
+	    //nga.field('activityHash').label('hash'),
+	    nga.field('bossFight').label('Boss Fight'), nga.field('isCompleted').label('Completed'), nga.field('definition.activityName').label('Name'), nga.field('definition.activityDescription').label('Description'), nga.field('definition.minParty').label('Min Party'), nga.field('definition.maxParty').label('Max Party')]).batchActions([]);
+	
+	    return arena;
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 133 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var armsday = admin.getEntity('armsday');
+	
+	    armsday.url(function (entityName, viewType, identifierValue, identifierName) {
+	        return 'advisors/';
+	    });
+	
+	    armsday.readOnly();
+	
+	    armsday.showView().title('Arms Day').fields([nga.field('active'), nga.field('startDate'), nga.field('endDate'), nga.field('nextStartDate'), nga.field('canPlaceOrder'), nga.field('orders', 'embedded_list').label('Orders').targetFields([nga.field('item.definition.icon').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="42" width="42" />'), nga.field('item.definition.itemName').label('Name'), nga.field('item.definition.tierTypeName').label('Tier'), nga.field('item.definition.itemTypeName').label('Type')]), nga.field('testWeapons', 'embedded_list').label('Test Weapons').targetFields([nga.field('item.definition.icon').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="42" width="42" />'), nga.field('item.definition.itemName').label('Name'), nga.field('item.definition.tierTypeName').label('Tier'), nga.field('item.definition.itemTypeName').label('Type')])]);
+	
+	    return armsday;
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 134 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var availablebounties = admin.getEntity('availablebounties');
+	
+	    availablebounties.identifier(nga.field('activityHash'));
+	
+	    availablebounties.url(function (entityName, viewType, identifierValue, identifierName) {
+	        return 'advisors/';
+	    });
+	
+	    availablebounties.readOnly();
+	
+	    availablebounties.showView().title('Available Bounties').fields([nga.field('saleItems', 'embedded_list').label('').targetFields([nga.field('item.definition.icon').label('').template('<img style="background-color:black;padding:5px;" src="http://www.bungie.net{{ value }}" height="42" width="42" />'), nga.field('item.definition.itemName').label('Name'), nga.field('item.definition.itemDescription').label('Description')])]);
+	
+	    return availablebounties;
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 135 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	var _moment = __webpack_require__(17);
+	
+	var _moment2 = _interopRequireDefault(_moment);
+	
+	var _showtemplateHtml = __webpack_require__(136);
+	
+	var _showtemplateHtml2 = _interopRequireDefault(_showtemplateHtml);
+	
+	var fromNow = function fromNow(v) {
+	    return (0, _moment2['default'])(v).fromNow();
+	};
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var myaccount = admin.getEntity('myaccount');
+	
+	    myaccount.url(function (entityName, viewType, identifierValue, identifierName) {
+	        return 'https://www.bungie.net/Platform/User/GetCurrentBungieAccount/';
+	    });
+	
+	    myaccount.listView().title('My Account').fields([nga.field('', 'template').label('').template('<span ng-if="entry.values.message">Login to Bungie.net&nbsp;<button ng-controller="BungieRedirect" ng-click="goBungie()">Go</button>'),
+	    //                nga.field('').label('')
+	    //                    .template('<img  ng-if="entry.values[\'userInfo.iconPath\']" src="http://www.bungie.net{{ entry.values[\'userInfo.iconPath\'] }}" height="42" width="42" />'),
+	    nga.field('userInfo.displayName').label('Name'), nga.field('grimoireScore').label('Grimoire Score'), nga.field('', 'template').label('').template('<ma-filtered-list-button  ng-if="!entry.values.message" entity-name="vault" filter="{ platformid: entry.values[\'userInfo.membershipType\'],characterid:entry.values[\'characters\'][0].characterId,memberid:entry.values[\'userInfo.membershipId\'],sortField:\'primaryStat\' }" label="Vault" size="sm"></ma-filtered-list-button>'), nga.field('', 'template').label('').template('<ma-filtered-list-button  ng-if="!entry.values.message" entity-name="characters" filter="{ platformid: entry.values[\'userInfo.membershipType\'],memberid:entry.values[\'userInfo.membershipId\'] }" label="Characters Public" size="sm"></ma-filtered-list-button>'), nga.field('characters', 'embedded_list').label('Characters Private').targetFields([nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values.emblemPath }}" height="42" width="42" />'), nga.field('characterClass.className').label('Class'), nga.field('level').label('Level'), nga.field('powerLevel').label('Light'), nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="inventory" filter="{platformid: entry.values.membershipType,memberid:entry.values.membershipId,characterid: entry.values.characterId }" label="Inventory" size="sm"></ma-filtered-list-button>'), nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="vendors" filter="{platformid: entry.values.membershipType,characterid: entry.values.characterId }" label="Vendors" size="sm"></ma-filtered-list-button>')])
+	    //nga.field('').label('').template("<div> {{ entry.values }} </div>"),
+	    ]).actions(['back']).batchActions([]);
+	
+	    myaccount.showView().title('My Account').fields([nga.field('destinyAccounts', 'embedded_list').targetFields([nga.field('userInfo.iconPath'), nga.field('userInfo.membershipId'), nga.field('userInfo.membershipType'), nga.field('userInfo.displayName'), nga.field('grimoireScore'), nga.field('characters', 'embedded_list').targetFields([nga.field('characterId'), nga.field('membershipId'), nga.field('membershipType'), nga.field('race.raceName'), nga.field('gender.genderName'), nga.field('characterClass.className'), nga.field('levelProgression.level')])])]).actions(['back']).template(_showtemplateHtml2['default']);
+	
+	    return myaccount;
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 136 */
+/***/ function(module, exports) {
+
+	module.exports = "<br>\n<h3 class=\"col-lg-12\">My Account</h3>\n<hr>\n<div class=\"col-md-12\">\n    <div>\n        <div>\n            <div ng-if=\"!entry.values.destinyAccounts\">\n                Login to <a href=\"https://www.bungie.net\" target=\"_blank\">Bungie.net</a>\n                <button style=\"margin-left:20px\" ng-controller=\"BungieRedirect\" ng-click=\"refreshPage()\">Refresh</button>\n            </div>\n            <div ng-repeat=\"n in entry.values.destinyAccounts\">\n                <div class=\"col-md-2\">\n                    <h4>{{n.userInfo.displayName}}</h4><hr>\n                    <h5>Grimoire Score:<br><br>{{n.grimoireScore}}</h5>\n                    <br>\n                    <div><ma-filtered-list-button entity-name=\"vault\" filter=\"{ platformid: n.userInfo.membershipType,characterid:n.characters[0].characterId,memberid:n.userInfo.membershipId }\" label=\"Vault\" size=\"sm\"></ma-filtered-list-button></div><br>\n                    <div><ma-filtered-list-button entity-name=\"triumphs\" filter=\"{ platformid: n.userInfo.membershipType, memberid:n.userInfo.membershipId }\" label=\"Triumphs\" size=\"sm\"></ma-filtered-list-button></div><br>\n                </div>\n                <div class=\"col-md-10\" style=\"padding:20px;padding-left:50px\">\n                            <div ng-repeat=\"c in n.characters\">\n                                <div class=\"row\">\n                                    <a href=\"#/charactersummary/show/{{c.membershipType}}-{{c.membershipId}}-{{c.characterId}}\">\n                                        <div style=\"background-image: url('http://www.bungie.net{{ c.backgroundPath }}'); height:96px; width: 474px;\">\n                                            <div style=\"pull-left; float:left;background-image: url(http://www.bungie.net{{ c.emblemPath }}); height:96px; width: 96px;\" ></div>\n                                            <div class=\"pull-left\" style=\"margin:10px;\">                                    <h4 style=\"color:white;\">{{ c.characterClass.className }}</h4>             <p style=\"color:white;\">{{ c.race.raceName }} {{ c.gender.genderName }}</p></div>                                                                 <div class=\"pull-right\" style=\"margin:20px\">                                   <p style=\"color:white;\">Level {{ c.level}}</p>                             <p style=\"color:yellow;font-size:1.2em;font-weight:bold;\">{{ c.powerLevel }}</p>                                                         </div>                                                              \n                                        </div>\n                                    </a>\n                                </div>\n                                <br>\n                            </div>\n                </div>\n            </div>\n        </div>\n    </div>\n</div>\n\n\n";
+
+/***/ },
+/* 137 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var vault = admin.getEntity('vault');
+	
+	    vault.identifier(nga.field('uniqueId'));
+	
+	    vault.url(function (entityName, viewType, identifierValue, identifierName) {
+	        return 'platformid/MyAccount/Vault/Summary/';
+	    });
+	
+	    vault.listView().title('My Vault').fields([nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values[\'definition.icon\'] }}" height="48" width="48" />'), nga.field('primaryStat.value').label('Light'), nga.field('definition.itemName').label('Name'), nga.field('definition.itemTypeName').label('Type'), nga.field('definition.tierTypeName').label('Tier'),
+	    //nga.field('talentGrid.nodes').label('talentGrid'),
+	    //        nga.field('talentGrid.nodes', 'embedded_list').label('Nodes')
+	    //                .targetFields([
+	    //                        nga.field('nodeIndex'),
+	    //                        nga.field('steps', 'embedded_list').label('steps')
+	    //                            .targetFields([
+	    //                                    nga.field('nodeStepName'),
+	    //                                    nga.field('nodeStepDescription'),
+	    //                                ])
+	    //                    ]),
+	    nga.field('', 'template').label('').template('<span class="pull-right"><a class="btn btn-default btn-xs" href="#/inventory/show/{{entry.values.currentPlatformId}}-{{entry.values.currentMemberId}}-{{entry.values.currentCharacterId}}-{{entry.values.itemId}}"><span class="glyphicon glyphicon-eye-open"></span>&nbsp;Details</a>')]).
+	    //nga.field('').template('<div>{{ entry.values }}</div>')
+	    actions(['back', 'export']).perPage(200).batchActions([]);
+	
+	    return vault;
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 138 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var vaultitem = admin.getEntity('vaultitem');
+	
+	    vaultitem.identifier(nga.field('itemHash'));
+	
+	    vaultitem.url(function (entityName, viewType, identifierValue, identifierName) {
+	        if (identifierValue) return 'Manifest/InventoryItem/' + identifierValue;else return 'Manifest/InventoryItem/';
+	    });
+	
+	    vaultitem.readOnly();
+	
+	    vaultitem.showView().title('Vault Item Detail').actions(['back']).fields([nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values.icon }}" height="96" width="96" />'), nga.field('itemName').label('Name'), nga.field('itemDescription').label('Description'), nga.field('primaryBaseStatHash').label('Light'),
+	    //            nga.field('perkHashes'),
+	    //            nga.field('perks', 'embedded_list').label('Perks')
+	    //                .targetFields([
+	    //                    nga.field('').template('<div> {{ entry.values }} </div>'),
+	    //                ]),
+	    //            nga.field('talentGridHash'),
+	    //            nga.field('talentGrid.gridHash'),
+	    nga.field('talentGrid.nodes', 'embedded_list').label('Nodes').targetFields([
+	    //nga.field('').template('<div> {{ entry.values }} </div>'),
+	    nga.field('steps', 'embedded_list').label('Steps').targetFields([nga.field('').label('').template('<img style="background-color:darkgray;" src="http://www.bungie.net{{ entry.values.icon }}" height="24" width="24" />'), nga.field('nodeStepName'), nga.field('nodeStepDescription')])])]);
+	
+	    //                            nga.field('perks', 'embedded_list').label('Perks')
+	    //                            .targetFields([
+	    //                                nga.field('displayIcon').label('').template('<img style="background-color:darkgray;" src="http://www.bungie.net{{ value }}" height="24" width="24" />'),
+	    //                                nga.field('displayName'),
+	    //                                nga.field('displayDescription'),
+	    //                            ]),
+	    //nga.field('').template('<div> {{ entry.values }} </div>'),
+	    return vaultitem;
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 139 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var vendors = admin.getEntity('vendors');
+	
+	    vendors.identifier(nga.field('vendorHash'));
+	
+	    vendors.url(function (entityName, viewType, identifierValue, identifierName) {
+	        return 'platformid/MyAccount/Character/characterid/Vendors/Summaries/';
+	    });
+	
+	    vendors.readOnly();
+	
+	    vendors.listView().title('Vendors').fields([nga.field('').label('').template('<img style="background-color:black;" width="48" height="48" src="http://www.bungie.net{{ entry.values[\'definition.summary.vendorIcon\']}}" />'), nga.field('definition.summary.vendorName').label('Name'), nga.field('enabled').label('Enabled'), nga.field('nextRefreshDate', 'date').label('Next Refresh'),
+	    //nga.field('').label('').template('<div> {{ entry.values }} </div>'),
+	    //            nga.field('', 'template').label('').template('<span class="pull-right"><a class="btn btn-default btn-xs" filter="{ platformid: entry.values[\'userInfo.membershipType\'], memberid:entry.values[\'userInfo.membershipId\'] }" href="#/platformid/MyAccount/Character/vendorid/"><span class="glyphicon glyphicon-eye-open"></span>&nbsp;Items</a>'),
+	    nga.field('', 'template').label('').template('<ma-filtered-list-button entity-name="vendoritems" filter="{ platformid: entry.values.membershipType, characterid:entry.values.characterId, vendorid:entry.values.vendorHash }" label="Items" size="sm"></ma-filtered-list-button>')]).actions(['back', 'export']).perPage(50).batchActions([]);
+	
+	    return vendors;
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 140 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var vendoritems = admin.getEntity('vendoritems');
+	
+	    vendoritems.identifier(nga.field('categoryTitle'));
+	
+	    vendoritems.url(function (entityName, viewType, identifierValue, identifierName) {
+	        return 'platformid/MyAccount/Character/characterid/Vendor/vendorid/';
+	    });
+	
+	    vendoritems.readOnly();
+	
+	    vendoritems.listView().title('Vendor Items').fields([nga.field('categoryTitle').label('Category'), nga.field('saleItems', 'embedded_list').label('Items').targetFields([nga.field('').label('').template('<img src="http://www.bungie.net{{ entry.values[\'definition.icon\'] }}" height="42" width="42" />'), nga.field('definition.itemName').label('Name'), nga.field('definition.itemTypeName').label('Type'), nga.field('definition.tierTypeName').label('Tier'),
+	    //nga.field('').label('').template('<div> {{ entry.values }} </div>'),
+	    nga.field('item.perks', 'embedded_list').label('').targetFields([nga.field('iconPath').label('').template('<img src="http://www.bungie.net{{ value }}" style="background-color:darkgray;" width="24" height="24" />'), nga.field('definition.displayName').label('Perk'), nga.field('definition.displayDescription').label('Description')])])]).actions(['back', 'export']).perPage(50).batchActions([]);
+	
+	    //    vendoritems.showView()
+	    //        .title('Vendor Item Detail')
+	    //        .actions(['back'])
+	    //        .fields([
+	    //            nga.field('vendorHash').label('Name'),
+	    //        ]);   
+	
+	    return vendoritems;
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 141 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	var _dashboardTemplateHtml = __webpack_require__(142);
+	
+	var _dashboardTemplateHtml2 = _interopRequireDefault(_dashboardTemplateHtml);
+	
+	var moment = __webpack_require__(17);
+	
+	var fromNow = function fromNow(v) {
+	    return moment(v).fromNow();
+	};
+	
+	exports['default'] = function (nga, admin) {
+	
+	    return nga.dashboard().template(_dashboardTemplateHtml2['default']);
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 142 */
+/***/ function(module, exports) {
+
+	module.exports = "<br>\n<h3 class=\"col-lg-12\">Greetings, Hive Bane!</h3>\n<hr>\n\n<div class=\"row dashboard-content\">\n    <div class=\"col-md-3\">\n        <div class=\"panel panel-default text-center\">\n            <div class=\"btn-group\">\n                <h5><i>Guardians:</i></h5>\n                <p><a class=\"btn btn-primary btn-block\" href=\"#/myaccount/show/\">My Account</a></p>\n                <p><a class=\"btn btn-success btn-block\" href=\"#/guardians/list\">Guardian Search</a></p>\n            </div>\n        </div>\n    </div>\n    \n    <div class=\"col-md-3\">\n        <div class=\"panel panel-default text-center\">\n            <div class=\"btn-group\">\n                <h5><i>Current Activities:</i></h5>\n                <p><a class=\"btn btn-info btn-block\" href=\"#/nightfall/show/\">Nightfall</a></p>\n                <p><a class=\"btn btn-info btn-block\" href=\"#/heroicstrike/show/\">Heroic Strike</a></p>\n                <p><a class=\"btn btn-info btn-block\" href=\"#/arena/show/\">Arena</a></p>\n                <p><a class=\"btn btn-info btn-block\" href=\"#/dailychapter/show/\">Daily Chapter</a></p>\n                <p><a class=\"btn btn-info btn-block\" href=\"#/dailycrucible/show/\">Daily Crucible</a></p>\n                <p><a class=\"btn btn-info btn-block\" href=\"#/armsday/show/\">Arms Day</a></p>\n                <p><a class=\"btn btn-info btn-block\" href=\"#/weeklycrucible/show/\">Weekly Crucible</a></p>\n                <p><a class=\"btn btn-info btn-block\" href=\"#/availablebounties/show/\">Available Bouties</a></p>\n            </div>\n        </div>\n    </div>\n    \n</div>\n";
+
+/***/ },
+/* 143 */
+/***/ function(module, exports) {
+
+	module.exports = "<div class=\"navbar-header\">\n    <button type=\"button\" class=\"navbar-toggle\" ng-click=\"isCollapsed = !isCollapsed\">\n        <span class=\"icon-bar\"></span>\n        <span class=\"icon-bar\"></span>\n        <span class=\"icon-bar\"></span>\n    </button>\n    <a class=\"navbar-brand\" href=\"#\" ng-click=\"appController.displayHome()\">ng-admin-destiny</a>\n</div>\n<ul class=\"nav navbar-top-links navbar-right hidden-xs\">\n    <li>\n        <a href=\"https://github.com/mapper43/ng-admin-destiny\">\n            <i class=\"fa fa-github fa-lg\"></i>&nbsp;Source\n        </a>\n    </li>\n    <!-- li uib-dropdown>\n        <a uib-dropdown-toggle href=\"#\" aria-expanded=\"true\" ng-controller=\"username\">\n            <i class=\"fa fa-user fa-lg\"></i>&nbsp;{{ username }}&nbsp;<i class=\"fa fa-caret-down\"></i>\n        </a>\n        <ul class=\"dropdown-menu dropdown-user\" role=\"menu\">\n            <li><a href=\"#\" onclick=\"logout()\"><i class=\"fa fa-sign-out fa-fw\"></i> Logout</a></li>\n        </ul>\n    </li -->\n</ul>\n";
+
+/***/ },
+/* 144 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	
+	exports['default'] = function (nga, admin) {
+	
+	    var myAccountMenu = nga.menu(admin.getEntity('myaccount')).title('My Account').icon('<span class="fa fa-user fa-fw"></span>');
+	
+	    return nga.menu().addChild(nga.menu().title('My Account').link("/myaccount/show/")).addChild(nga.menu().title('Current Activities').addChild(nga.menu().title('Nightfall').link("/nightfall/show/")).addChild(nga.menu().title('Heroic Strike').link("/heroicstrike/show/")).addChild(nga.menu().title('Arena').link("/arena/list")).addChild(nga.menu().title('Daily Chapter').link("/dailychapter/show/")).addChild(nga.menu().title('Daily Crucible').link("/dailycrucible/show/")).addChild(nga.menu().title('Arms Day').link("/armsday/show/")).addChild(nga.menu().title('Weekly Crucible').link("/weeklycrucible/show/")).addChild(nga.menu().title('Available Bounties').link("/availablebounties/show/"))).addChild(nga.menu(admin.getEntity('guardians')).title('Guardian Search').icon('<span class="fa fa-users fa-fw"></span>'))
+	    //.addChild(myAccountMenu)
+	    .addChild(nga.menu().title('Item Explorer').addChild(nga.menu().title('Primary Weapons').link("/items/list?search=%7B%22categories%22:%221%22%7D")).addChild(nga.menu().title('Currency').link("/items/list?search=%7B%22categories%22:%2218%22%7D")).addChild(nga.menu().title('Armor').link("/items/list?search=%7B%22categories%22:%2220%22%7D")).addChild(nga.menu().title('Warlock Class').link("/items/list?search=%7B%22categories%22:%2221%22%7D")).addChild(nga.menu().title('Titan Class').link("/items/list?search=%7B%22categories%22:%2222%22%7D")).addChild(nga.menu().title('Hunter Class').link("/items/list?search=%7B%22categories%22:%2223%22%7D")).addChild(nga.menu().title('Crucible').link("/items/list?search=%7B%22categories%22:%2228%22%7D")).addChild(nga.menu().title('Material').link("/items/list?search=%7B%22categories%22:%2240%22%7D")).addChild(nga.menu().title('Shader').link("/items/list?search=%7B%22categories%22:%2241%22%7D")).addChild(nga.menu().title('Ship').link("/items/list?search=%7B%22categories%22:%2242%22%7D")).addChild(nga.menu().title('Vehicle').link("/items/list?search=%7B%22categories%22:%2243%22%7D")).addChild(nga.menu().title('Emote').link("/items/list?search=%7B%22categories%22:%2244%22%7D")).addChild(nga.menu().title('Chest Armor').link("/items/list?search=%7B%22categories%22:%2247%22%7D")).addChild(nga.menu().title('Build').link("/items/list?search=%7B%22categories%22:%2250%22%7D")).addChild(nga.menu().title('Inventory').link("/items/list?search=%7B%22categories%22:%2252%22%7D")));
+	};
+	
+	module.exports = exports['default'];
+
+/***/ },
+/* 145 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin

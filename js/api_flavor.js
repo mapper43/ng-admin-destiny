@@ -1,37 +1,40 @@
 function requestInterceptor(RestangularProvider) {
     // use the custom query parameters function to format the API request correctly
     
+    RestangularProvider.setDefaultHeaders({'X-API-Key': 'YOUR_API_KEY'});
+          
+
     chrome.cookies.getAll({
           'domain': '.bungie.net'
         }, function(cookies) {
           if (_.size(cookies) > 0) {
             for (var i=0; i<cookies.length; i++){
                 if (cookies[i].name=='bungled') {
-                    console.log('here');
                     RestangularProvider.setDefaultHeaders(
                         {'X-API-Key': 'YOUR_API_KEY',
                          'X-Csrf':cookies[i].value});
                 }
             }
 
-          } else {
-            RestangularProvider.setDefaultHeaders(
-                {'X-API-Key': 'YOUR_API_KEY'});
           }
     });
     
     
     
-    RestangularProvider.addFullRequestInterceptor(function(element, operation, what, url, headers, params,httpConfig) {    
+    RestangularProvider.addFullRequestInterceptor(function(element, operation, what, url, headers, params,httpConfig) {  
+        
         params.definitions='true';
          
         if (operation == "getList") {
             if (what=='items' || what=='vault' || what=='inventory'){
+                
+                
                 if (params._sortDir=='DESC')
                     params.direction='descending';
                 else 
                     params.direction='ascending';
                     
+                console.log(params._sortField);
                 
                 if (params._sortField=='itemName'||params._sortField=='definition.itemName')
                     params.order=1;
@@ -42,11 +45,16 @@ function requestInterceptor(RestangularProvider) {
                 else if (params._sortField=='primaryStat.value')
                     params.order='primaryStat';    
                 else
-                    params.order=1;
+                    params.order='primaryStat';
                 
             }
             
             if (params._filters) {
+                if (what=='vault'){
+                    params.characterid=params._filters.characterid;
+                    params.memberid=params._filters.memberid;
+                    params.platformid=params._filters.platformid;
+                }
                 params.filter = params._filters;
                 delete params._filters;
             }
@@ -73,6 +81,7 @@ function requestInterceptor(RestangularProvider) {
             
             if (headers['Content-Range']) {
                 headers['X-Total-Count'] = headers['Content-Range'].split('/').pop();
+                
             }
             delete params.range;
             delete params.sort;
@@ -90,7 +99,6 @@ function responseInterceptor(RestangularProvider,currentPlatformId,currentMember
 //            response.totalCount = contentRange.split('/')[1];
 //        }
         
-        
         if (operation == "getList" && what == "guardians") {
             if (data){
                 data.Response.displayName = params.displayname;
@@ -99,7 +107,18 @@ function responseInterceptor(RestangularProvider,currentPlatformId,currentMember
                 data = [];
             }
         }
-        
+        if (operation == "get" && what == "characters") {
+            if (data){
+                for (var i=0; i<data.Response.data.characters.length; i++){
+                    data.Response.data.characters[i].race = data.Response.definitions.races[data.Response.data.characters[i].characterBase.raceHash];
+                    data.Response.data.characters[i].gender = data.Response.definitions.genders[data.Response.data.characters[i].characterBase.genderHash];
+                    data.Response.data.characters[i].class = data.Response.definitions.classes[data.Response.data.characters[i].characterBase.classHash];
+                }
+                data=data.Response.data;
+            } else {
+                data = null;
+            }
+        }
         if (operation == "getList" && what == "characters") {
             var arr = Object.keys(data.Response.data.characters).map(function (key) {return data.Response.data.characters[key]});
             var classesArray = data.Response.definitions.classes;
@@ -108,20 +127,45 @@ function responseInterceptor(RestangularProvider,currentPlatformId,currentMember
             }
             data = arr;
         }
+        if (operation == "get" && what == "charactersummary") {
+            if (data){
+                data.Response.data.uniqueId = data.Response.data.characterBase.membershipType + '-' + data.Response.data.characterBase.membershipId + '-'  + data.Response.data.characterBase.characterId;
+                data.Response.data.characterBase.class=data.Response.definitions.classes[data.Response.data.characterBase.classHash];
+                data.Response.data.characterBase.race=data.Response.definitions.races[data.Response.data.characterBase.raceHash];
+                data.Response.data.characterBase.gender=data.Response.definitions.genders[data.Response.data.characterBase.genderHash];
+                
+                for (var key in data.Response.data.characterBase.stats) {
+                    var obj = data.Response.data.characterBase.stats[key];
+                    data.Response.data.characterBase.stats[key].definition = data.Response.definitions.stats[obj.statHash];
+                }
+                for (var i=0; i<data.Response.data.characterBase.peerView.equipment.length; i++) {
+                    var obj = data.Response.data.characterBase.peerView.equipment[i];
+                    data.Response.data.characterBase.peerView.equipment[i].definition = data.Response.definitions.items[obj.itemHash];
+                    
+                    if (data.Response.data.characterBase.peerView.equipment[i].definition.stats[data.Response.data.characterBase.peerView.equipment[i].definition.primaryBaseStatHash]){
+                        data.Response.data.characterBase.peerView.equipment[i].primaryStat = data.Response.data.characterBase.peerView.equipment[i].definition.stats[data.Response.data.characterBase.peerView.equipment[i].definition.primaryBaseStatHash].value
+                    } else {
+                        data.Response.data.characterBase.peerView.equipment[i].primaryStat =0;
+                    }
+                }
+                data = data.Response.data;
+                
+            } else {
+                data = [];
+            }
+        }
         if (operation == "getList" && what == "vendors") {
             var urlArr = response.config.url.toLowerCase().split('/');
             var platId,charId;
             var accountIndex = urlArr.indexOf('myaccount');
             platId = urlArr[accountIndex-1];
             charId = urlArr[accountIndex+2];
-            console.log(urlArr);
             
             var arr = Object.keys(data.Response.data.vendors).map(function (key) {return data.Response.data.vendors[key]});
             for (var i=0; i< arr.length; i++){
                 arr[i].membershipType = platId;
                 arr[i].characterId = charId;
                 arr[i].definition = data.Response.definitions.vendorDetails[arr[i].vendorHash];
-                console.log(arr[i]);
             }
             data = arr;
         }
@@ -171,7 +215,7 @@ function responseInterceptor(RestangularProvider,currentPlatformId,currentMember
                         item.currentCharacterId=charId;
                         item.currentPlatformId=platId;
                         item.currentMemberId=memId;
-                        
+                        item.unique_id=platId + '-'+memId+'-'+charId;
                         arr.push(item);
                     }
                 }
@@ -204,7 +248,49 @@ function responseInterceptor(RestangularProvider,currentPlatformId,currentMember
                     
                 });
                 data=arr;
-               
+                
+            } else {
+                data = [];
+            }
+        }
+        if (operation == "getList" && what == "activities") {
+            if (data){
+                var activities = data.Response.data.available;
+                var definitions = data.Response.definitions.activities;
+                for (var i=0; i<activities.length; i++){
+                    data.Response.data.available[i].definition = definitions[activities[i].activityHash];
+                }
+                data=data.Response.data.available;
+            } else {
+                data = [];
+            }
+        }
+        if (operation == "getList" && what == "carnagereport") {
+            if (data){
+                
+                
+                for (var i=0; i<data.Response.data.entries.length; i++){
+                    data.Response.data.entries[i].entryid = i;
+                }
+                data=data.Response.data.entries;
+                
+            } else {
+                data = [];
+            }
+        }
+        if (operation == "getList" && what == "stats") {
+            
+            if (data){
+                var arr = [];
+                
+                for(var i in data.Response){
+                  var statObj = {};
+                  statObj.statsval = data.Response[i];
+                  statObj.keyval = i; 
+                  arr.push(statObj);
+                }
+                data=arr;
+                
             } else {
                 data = [];
             }
@@ -333,7 +419,7 @@ function responseInterceptor(RestangularProvider,currentPlatformId,currentMember
             if (data && data.Response && data.Response.data && data.Response.data.weeklyCrucible){
                 
                 var actId = data.Response.data.weeklyCrucible[0].activityBundleHash; 
-                console.log(actId);
+                //console.log(actId);
                 
                 data.Response.data.weeklyCrucible[0].definition= data.Response.definitions.activityBundles[actId];
                 
@@ -385,9 +471,14 @@ function responseInterceptor(RestangularProvider,currentPlatformId,currentMember
                 
                 data=data.Response.destinyAccounts;
             } else {
-                //var dataObj = {};
-                //dataObj.bungieLoginUrl='http://www.bungie.net';
-                //var arr = Object.keys(dataObj).map(function (key) {return dataObj[key]});
+                data = [{message:'http://www.bungie.net'}];
+            }
+        }
+        if (operation == "get" && what=="myaccount") {
+            if (data && data.Response && data.Response.destinyAccounts){
+                data.Response.defaultSortField='vault_ListView.primaryStat.value';
+                data=data.Response;
+            } else {
                 data = [{message:'http://www.bungie.net'}];
             }
         }
@@ -424,19 +515,10 @@ function responseInterceptor(RestangularProvider,currentPlatformId,currentMember
         if (operation == "getList" && what=="vault") {
             if (data && data.Response && data.Response.data){
                 var platId,memId,charId;
-                
-                var urlParams = window.location.hash.split('?').pop().split(',');
-                for (var i=0; i<urlParams.length; i++){
-                    if (urlParams[i].indexOf('characterid')>-1)
-                        charId = urlParams[i].split(':').pop().replace(/%22/g,'').replace(/%7D/g,'');
-                    if (urlParams[i].indexOf('platformid')>-1)
-                        platId = urlParams[i].split(':').pop().replace(/%22/g,'').replace(/%7D/g,'');
-                    if (urlParams[i].indexOf('memberid')>-1)
-                        memId = urlParams[i].split(':').pop().replace(/%22/g,'').replace(/%7D/g,'');
-                }
-                console.log(charId);
-                console.log(memId);
-                console.log(platId);
+                //console.log(url);
+                charId = response.config.params.characterid;
+                platId = response.config.params.platformid;
+                memId = response.config.params.memberid;
                 
                 for (var i=0; i<data.Response.data.items.length; i++){
                     
@@ -448,16 +530,12 @@ function responseInterceptor(RestangularProvider,currentPlatformId,currentMember
                     data.Response.data.items[i].definition=data.Response.definitions.items[data.Response.data.items[i].itemHash];
                     
                     data.Response.data.items[i].talentGrid = data.Response.definitions.talentGrids[data.Response.data.items[i].definition.talentGridHash];
-                    
-//                    var nodes=[];
-//                    if (data.Response.data.items[i].talentGrid && data.Response.data.items[i].talentGrid.nodes){
-//                        nodes=data.Response.data.items[i].talentGrid.nodes;
-//                    }
-//                    console.log(nodes);
                 
                 }
                 //bungie api doesn't allow sorting by these fields
                 var arr = data.Response.data.items.sort(function(a, b) {
+                    console.log(response.config.params.order);
+                    
                     var orderDir=1;
                     if (response.config.params.direction=='descending')
                         orderDir=-1;

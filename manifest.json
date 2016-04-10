@@ -3,7 +3,7 @@
 
   "name": "ng-admin-destiny",
   "description": "A responsive layout chrome extension for Desinty",
-  "version": "0.0.5",
+  "version": "0.0.10",
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",

@@ -5,10 +5,12 @@ export default function (nga, admin) {
     inventory.identifier(nga.field('itemHash'));
     
     inventory.url(function(entityName, viewType, identifierValue, identifierName) {
-        if (identifierValue)
-            return 'platformid/Account/memberid/Character/characterid/Inventory/'+ identifierValue;
-        else
+        if (identifierValue){
+            var arr = identifierValue.split('-');
+            return arr[0] + '/Account/' + arr[1] + '/Character/' + arr[2] + '/Inventory/' + arr[3] + '/';
+        }else{
             return 'platformid/Account/memberid/Character/characterid/Inventory/';
+        }
     });
     
     inventory.readOnly();

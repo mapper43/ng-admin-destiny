@@ -1,0 +1,25 @@
+<br>
+<h3 class="col-lg-12">Characters</h3>
+<hr>
+<div class="col-md-12">
+    <div>
+        <div>
+            <div class="col-md-10" style="padding:20px;padding-left:50px">
+                    <div ng-repeat="c in entry.values.characters">
+                        <div class="row">
+                            <a href="#/charactersummary/show/{{c.characterBase.membershipType}}-{{c.characterBase.membershipId}}-{{c.characterBase.characterId}}">
+                                <div style="background-image: url('http://www.bungie.net{{ c.backgroundPath }}'); height:96px; width: 474px;">
+                                    <div style="pull-left; float:left;background-image: url(http://www.bungie.net{{ c.emblemPath }}); height:96px; width: 96px;" ></div>
+                                    <div class="pull-left" style="margin:10px;">                                    <h4 style="color:white;">{{ c.class.className }}</h4>             <p style="color:white;">{{ c.race.raceName }} {{ c.gender.genderName }}</p></div>                                                                 <div class="pull-right" style="margin:20px">                                   <p style="color:white;">Level {{ c.characterBase.level}}</p>                             <p style="color:yellow;font-size:1.2em;font-weight:bold;">{{ c.characterBase.powerLevel }}</p>                                                         </div>                                                              
+                                </div>
+                            </a>
+                            <div style="margin:20px;" ng-if="c.characterBase.currentActivityHash!='0'"><ma-filtered-list-button class="btn btn-success" entity-name="carnagereport" filter="{activityid: c.characterBase.currentActivityHash}" label="Current Activity" size="sm"></ma-filtered-list-button></div>
+                        </div>
+                        <br>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

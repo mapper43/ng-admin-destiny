@@ -1,0 +1,60 @@
+<br>
+<h3 class="col-lg-12">Character Summary</h3>
+<hr>
+
+<div class="col-lg-12">
+    <div class="row">
+        <div class="col-md-8 pull-left" style="background-image: url('http://www.bungie.net{{ ::entry.values.backgroundPath }}'); height:96px; width: 474px;">
+            <img class="pull-left" src="http://www.bungie.net{{ ::entry.values.emblemPath }}" />                                 <div class="pull-left" style="margin:10px;">                                                                     <h4 style="color:white;">{{ ::entry.values['characterBase.class.className'] }}</h4>                           <p style="color:white;">{{ ::entry.values['characterBase.race.raceName'] }} {{ ::entry.values['characterBase.gender.genderName'] }}</p>                                                           </div>                                                                                                       <div class="pull-right" style="margin:20px">                                                                       <p style="color:white;">Level {{ ::entry.values.characterLevel}}</p>                                           <p style="color:yellow;font-size:1.2em;font-weight:bold;">{{ ::entry.values['characterBase.powerLevel'] }}</p>                                                                   </div>                                                                                              </div> 
+            <div class="col-md-4 pull-right">
+                <div class="panel panel-default" style="margin:10px;">
+                    <div class="panel-body" style="text-align:center">
+                        <div ng-if="entry.values['characterBase.currentActivityHash']!='0'"><ma-filtered-list-button class="btn btn-success" entity-name="carnagereport" filter="{activityid: entry.values['characterBase.currentActivityHash']}" label="Current Activity" size="sm"></ma-filtered-list-button></div><br>
+                        <div><ma-filtered-list-button entity-name="activities" filter="{platformid: entry.values['characterBase.membershipType'],memberid:entry.values['characterBase.membershipId'],characterid: entry.values['characterBase.characterId']}" label="All Activities" size="sm"></ma-filtered-list-button></div><br>
+                        <div><ma-filtered-list-button entity-name="progression" filter="{platformid: entry.values['characterBase.membershipType'],memberid:entry.values['characterBase.membershipId'],characterid: entry.values['characterBase.characterId']}" label="Progression" size="sm"></ma-filtered-list-button></div>
+                    </div>
+                </div>
+            </div>
+    </div>
+    
+</div>
+<hr>
+<style>label{display:none;}.show-value{width:100%;}</style>
+<div class="col-md-8">
+    <div class="row">
+    <h4 class="pull-left" style="margin-left:25px">Equipped Items:</h4>
+        <ma-filtered-list-button class="pull-right" style="margin-right:25px" entity-name="inventory" filter="{platformid: entry.values['characterBase.membershipType'],memberid:entry.values['characterBase.membershipId'],characterid: entry.values['characterBase.characterId']}" label="Equipment Details" size="sm"></ma-filtered-list-button>'
+    </div>  
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div ng-repeat="field in ::showController.fields.slice(showController.fields.length-1,showController.fields.length); track by $index" compile="::field.getTemplateValueWithLabel(entry)">
+                <ma-show-item field="::field" entry="::entry" entity="::showController.entity" datastore="::showController.dataStore"></ma-show-item>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-md-4">
+    <div class="row">
+    <h4 class="pull-left" style="margin-left:25px">Stats:</h4>
+        <ma-filtered-list-button style="margin-right:25px" class="pull-right" entity-name="stats" filter="{platformid: entry.values['characterBase.membershipType'],memberid:entry.values['characterBase.membershipId'],characterid: entry.values['characterBase.characterId']}" label="More Stats" size="sm"></ma-filtered-list-button>'
+    </div>    
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <br><br>
+            <p><span class="col-sm-8">Minutes Played:</span><span>{{ ::entry.values['characterBase.minutesPlayedTotal'] }}</span></p>
+            <p><span class="col-sm-8">Defense:</span><span>{{ ::entry.values['characterBase.stats.STAT_DEFENSE.value'] }}</span></p>
+            <p><span class="col-sm-8">Intellect:</span><span>{{ ::entry.values['characterBase.stats.STAT_INTELLECT.value'] }}</span></p>
+            <p><span class="col-sm-8">Discipline:</span><span>{{ ::entry.values['characterBase.stats.STAT_DISCIPLINE.value'] }}</span></p>
+            <p><span class="col-sm-8">Strength:</span><span>{{ ::entry.values['characterBase.stats.STAT_STRENGTH.value'] }}</span></p>
+            <p><span class="col-sm-8">Light:</span><span>{{ ::entry.values['characterBase.stats.STAT_LIGHT.value'] }}</span></p>
+            <p><span class="col-sm-8">Armor:</span><span>{{ ::entry.values['characterBase.stats.STAT_ARMOR.value'] }}</span></p>
+            <p><span class="col-sm-8">Agility:</span><span>{{ ::entry.values['characterBase.stats.STAT_AGILITY.value'] }}</span></p>
+            <p><span class="col-sm-8">Recovery:</span><span>{{ ::entry.values['characterBase.stats.STAT_RECOVERY.value'] }}</span></p>
+            <p><span class="col-sm-8">Optics:</span><span>{{ ::entry.values['characterBase.stats.STAT_OPTICS.value'] }}</span></p>
+            <p><span class="col-sm-8">Atack Speed:</span><span>{{ ::entry.values['characterBase.stats.STAT_ATTACK_SPEED.value'] }}</span></p>
+            <p><span class="col-sm-8">Damage Reduction:</span><span>{{ ::entry.values['characterBase.stats.STAT_DAMAGE_REDUCTION.value'] }}</span></p>
+            <p><span class="col-sm-8">Attack Efficiency:</span><span>{{ ::entry.values['characterBase.stats.STAT_ATTACK_EFFICIENCY.value'] }}</span></p>
+            <p><span class="col-sm-8">Attack Energy:</span><span>{{ ::entry.values['characterBase.stats.STAT_ATTACK_ENERGY.value'] }}</span></p>
+        </div>
+    </div>
+</div>
